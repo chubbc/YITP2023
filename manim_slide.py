@@ -15,7 +15,8 @@ class SlideScene(Scene):
         self.breaks=[0]
 
     def slide_break(self,t=0.5):
-        self.breaks+=[self.renderer.time+t/2+self.offset]
+        if not config.save_last_frame:
+        	self.breaks+=[self.renderer.time+t/2+self.offset]
         self.wait(t)
 
     def add_to_offset(self,t):
@@ -41,7 +42,8 @@ class SlideScene(Scene):
 
     def tear_down(self):
         super(SlideScene, self).tear_down()
-        self.save_times()
+        if not config.save_last_frame:
+        	self.save_times()
 
     def print_end_message(self):
         super(SlideScene, self).print_end_message()
