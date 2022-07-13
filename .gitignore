@@ -10,3 +10,6 @@ tmp/**
 node_modules/
 .sass-cache
 dist/*.map
+__pycache__/
+media/
+video_slides/partial_movie_files/

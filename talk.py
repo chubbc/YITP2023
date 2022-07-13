@@ -784,6 +784,7 @@ class StatMech(SlideScene):
             subsec4=False
             subsec5=False
             subsec6=False
+            subsec7=False
 
             subsec1=True
             subsec2=True
@@ -791,6 +792,7 @@ class StatMech(SlideScene):
             subsec4=True
             subsec5=True
             subsec6=True
+            subsec7=True
 
             if subsec1:
                 toric_code=VGroup()
@@ -903,14 +905,16 @@ class StatMech(SlideScene):
                 gloss_l+=Tex("Decoding")
                 gloss_l+=Tex("Stabilisers")
                 gloss_l+=Tex("Pauli errors")
+                gloss_l.set_color(RED)
 
                 gloss_r=VGroup()
                 gloss_r+=Tex("Disordered stat mech model")
                 gloss_r+=Tex("Phase transition")
                 gloss_r+=Tex("Partition functions")
                 gloss_r+=Tex("Approx.\\ part.\\ functions")
-                gloss_r+=Tex("Classic spins")
+                gloss_r+=Tex("Classical spins")
                 gloss_r+=Tex("Disordered couplings")
+                gloss_r.set_color(BLUE)
 
                 gloss_m=VGroup(Tex("$\\rightarrow$"),Tex("$\\rightarrow$"),Tex("$\\rightarrow$"),Tex("$\\rightarrow$"),Tex("$\\rightarrow$"),Tex("$\\rightarrow$"),Tex("$\\rightarrow$"))
 
@@ -1273,6 +1277,251 @@ class StatMech(SlideScene):
                 self.slide_break()
 
             if subsec5:
+                sc=0.9
+
+                eq1=Tex(r"Z_E",r"\stackrel{!}{=}",r"\Pr(\overline{E})",tex_environment="align*",scale=sc)
+                eq1[0].set_color(BLUE)
+                eq1[2].set_color(RED)
+                eq1.scale(sc)
+                self.play(FadeIn(eq1))
+                self.slide_break()
+
+                self.play(eq1.animate.shift(1.5*UP))
+                eq2=Tex(r"\sum_",r"{\vec s}",r"e^{-\beta H_{ {{E}} }({{\vec s}})}",r"\stackrel{!}{=}",r"\sum_{F\in\overline{E}}\Pr(F)",tex_environment="align*",scale=sc)
+                eq2[:-2].set_color(BLUE)
+                eq2[-1].set_color(RED)
+                eq2.scale(sc)
+                # self.play(FadeIn(eq2))
+                self.play(TransformFromCopy(eq1[0],eq2[:-2]),TransformFromCopy(eq1[1],eq2[-2]),TransformFromCopy(eq1[-1],eq2[-1]))
+                self.slide_break()
+
+                x=Tex(r"\sum_",r"{S}",r"e^{-\beta H_{ {{E}}{{S}} }({{\vec 1}})}",r"\stackrel{!}{=}",r"\sum_{F\in\overline{E}}\Pr(F)",tex_environment="align*",scale=sc)
+                x[:-2].set_color(BLUE)
+                x[-1].set_color(RED)
+                x.scale(sc)
+                self.play(
+                    Transform(eq2[0],x[0]),
+                    Transform(eq2[1],x[1]),
+                    Transform(eq2[2],x[2]),
+                    Transform(eq2[3],x[3]),
+                    Transform(eq2[5],x[4]),
+                    Transform(eq2[4],x[5]),
+                    FadeIn(x[6]),
+                    Transform(eq2[6],x[7]),
+                    eq2[7].animate.move_to(x[8]),
+                    eq2[8].animate.move_to(x[9]),
+                )
+                self.slide_break()
+
+                self.remove(x[6],*eq2)
+                eq2=Tex(r"\sum_",r"{S}",r"e^{-\beta H_{ {{ES}} }(\vec 1)}",r"\stackrel{!}{=}",r"\sum_{F\in\overline{E}}\Pr(F)",tex_environment="align*",scale=sc).move_to(eq2)
+                eq2[:-2].set_color(BLUE)
+                eq2[-1].set_color(RED)
+                eq2.scale(sc)
+                self.add(eq2)
+                x=Tex(r"\sum_",r"{F\in\overline{E}}",r"e^{-\beta H_{ {{F}} }(\vec 1)}",r"\stackrel{!}{=}",r"\sum_{F\in\overline{E}}\Pr(F)",tex_environment="align*",scale=sc).move_to(eq2)
+                x[:-2].set_color(BLUE)
+                x[-1].set_color(RED)
+                x.scale(sc)
+                self.play(Transform(eq2,x))
+                self.slide_break()
+
+                self.remove(*eq2)
+                eq2=Tex(r"\sum_{F\in\overline{E}}e^{",r"-\beta H_{F}(\vec 1)",r" }",r"\stackrel{!}{=}",r"\sum_{F\in\overline{E}}\Pr(F)",tex_environment="align*",scale=sc).move_to(eq2)
+                eq2[:-2].set_color(BLUE)
+                eq2[-1].set_color(RED)
+                eq2.scale(sc)
+                self.add(eq2)
+                x=Tex(r"\sum_{F\in\overline{E}}e^{",r"\sum_{i,\sigma_i}\beta J_i(\sigma_i)\comm{\sigma_i}{F_i}",r" }",r"\stackrel{!}{=}",r"\sum_{F\in\overline{E}}\Pr(F)",tex_environment="align*",tex_template=comm_temp,scale=sc).move_to(eq2)
+                x[:-2].set_color(BLUE)
+                x[-1].set_color(RED)
+                x.scale(sc)
+                self.play(Transform(eq2,x))
+                self.slide_break()
+
+                self.remove(*eq2)
+                eq2=Tex(r"\sum_{F\in\overline{E}}",r"e^{",r"\sum_{i,\sigma_i}",r"\beta J_i(\sigma_i)\comm{\sigma_i}{F_i}}",r"\stackrel{!}{=}",r"\sum_{F\in\overline{E}}\Pr(F)",tex_environment="align*",tex_template=comm_temp,scale=sc).move_to(eq2)
+                eq2[:-2].set_color(BLUE)
+                eq2[-1].set_color(RED)
+                eq2.scale(sc)
+                self.add(eq2)
+                x=Tex(r"\sum_{F\in\overline{E}}",r"\prod_{i}",r"e^{",r"\sum_{\sigma_i}",r"\beta J_i(\sigma_i)\comm{\sigma_i}{F_i}}",r"\stackrel{!}{=}",r"\sum_{F\in\overline{E}}\Pr(F)",tex_environment="align*",tex_template=comm_temp,scale=sc).move_to(eq2)
+                x[:-2].set_color(BLUE)
+                x[-1].set_color(RED)
+                x.scale(sc)
+                self.play(
+                    Transform(eq2[0],x[0]),
+                    Transform(eq2[1],x[2]),
+                    Transform(eq2[2],x[1]),
+                    FadeIn(x[3]),
+                    Transform(eq2[3],x[4]),
+                    Transform(eq2[4],x[5]),
+                    Transform(eq2[5],x[6]),
+                )
+                self.slide_break()
+
+                self.remove(*eq2,x[3])
+                eq2=Tex(r"\sum_{F\in\overline{E}}\prod_{i}e^{\sum_{\sigma_i}\beta J_i(\sigma_i)\comm{\sigma_i}{F_i}}",r"\stackrel{!}{=}",r"\sum_{F\in\overline{E}}",r"\Pr(F)",tex_environment="align*",tex_template=comm_temp,scale=sc).move_to(eq2)
+                eq2[:-3].set_color(BLUE)
+                eq2[-2:].set_color(RED)
+                eq2.scale(sc)
+                self.add(eq2)
+                x=Tex(r"\sum_{F\in\overline{E}}\prod_{i}e^{\sum_{\sigma_i}\beta J_i(\sigma_i)\comm{\sigma_i}{F_i}}",r"\stackrel{!}{=}",r"\sum_{F\in\overline{E}}",r"\prod_ip_i(F_i)",tex_environment="align*",tex_template=comm_temp,scale=sc).move_to(eq2)
+                x[:-3].set_color(BLUE)
+                x[-2:].set_color(RED)
+                x.scale(sc)
+                self.play(
+                    Transform(eq2,x)
+                )
+                self.slide_break()
+
+                self.remove(*eq2)
+                eq2=Tex(r"\sum_{F\in\overline{E}}\prod_{i}e^{\sum_{\sigma_i}\beta J_i(\sigma_i)\comm{\sigma_i}{F_i}}",r"\stackrel{!}{=}",r"\sum_{F\in\overline{E}}\prod_i",r"p_i(F_i)",tex_environment="align*",tex_template=comm_temp,scale=sc).move_to(eq2)
+                eq2[:-3].set_color(BLUE)
+                eq2[-2:].set_color(RED)
+                eq2.scale(sc)
+                self.add(eq2)
+                x=Tex(r"\sum_{F\in\overline{E}}\prod_{i}e^{\sum_{\sigma_i}\beta J_i(\sigma_i)\comm{\sigma_i}{F_i}}",r"\stackrel{!}{=}",r"\sum_{F\in\overline{E}}\prod_i",r"e^{\log p_i(F_i)}",tex_environment="align*",tex_template=comm_temp,scale=sc).move_to(eq2)
+                x[:-3].set_color(BLUE)
+                x[-2:].set_color(RED)
+                x.scale(sc)
+                self.play(Transform(eq2,x))
+
+                self.remove(*eq2)
+                eq2=Tex(r"\sum_{F\in\overline{E}}\prod_{i}e^{\sum_{\sigma_i}\beta J_i(\sigma_i)\comm{\sigma_i}{F_i}}",r"\stackrel{!}{=}",r"\sum_{F\in\overline{E}}\prod_ie^{\log p_i(F_i)}",tex_environment="align*",tex_template=comm_temp,scale=sc).move_to(eq2)
+                eq2[0].set_color(BLUE)
+                eq2[2].set_color(RED)
+                eq2.scale(sc)
+                self.add(eq2)
+
+                # self.play(eq1.animate.shift(1*UP),eq2.animate.shift(1*UP))
+                eq3=Tex(r"\sum_{\sigma_i}\beta J_i(\sigma_i)\comm{\sigma_i}{F_i}",r"\stackrel{!}{=}",r"\log p_i(F_i)",tex_environment="align*",tex_template=comm_temp,scale=sc).move_to(eq2)
+                eq3[0].set_color(BLUE)
+                eq3[2].set_color(RED)
+                eq3.move_to(1.5*DOWN)
+                eq3.scale(sc)
+                self.play(
+                    TransformFromCopy(eq2[0],eq3[0]),
+                    TransformFromCopy(eq2[1],eq3[1]),
+                    TransformFromCopy(eq2[2],eq3[2]),
+                )
+                self.slide_break()
+
+                self.play(FadeOut(eq2),eq3.animate.shift(1.5*UP))
+                self.slide_break()
+
+                eq4=Tex(r"\beta J_i(\sigma_i)",r"=",r"\frac{1}{4}\sum_{\tau_i}\log p(\tau_i)\comm{\sigma_i}{\tau^{-1}_i}",tex_environment="align*",tex_template=comm_temp,scale=sc).move_to(eq2)
+                eq4[0].set_color(BLUE)
+                eq4[2].set_color(YELLOW)
+                eq4.move_to(2*DOWN)
+                eq4.scale(sc)
+                # self.play(eq1.animate.shift(UP/2),eq2.animate.shift(UP/2),eq3.animate.shift(UP/2))
+                # self.slide_break()
+                self.play(FadeIn(eq4))
+                self.slide_break()
+
+                sr=SurroundingRectangle(eq4,WHITE,buff=0.2)
+                self.play(Write(sr))
+                self.slide_break()
+
+                self.remove(*eq3)
+                eq3=Tex(r"\sum_{\sigma_i}",r"\beta J_i(\sigma_i)",r"\comm{\sigma_i}{F_i}",r"\stackrel{!}{=}",r"\log p_i(F_i)",tex_environment="align*",tex_template=comm_temp).move_to(eq3).scale(sc)
+                eq3[:3].set_color(BLUE)
+                eq3[-1].set_color(RED)
+                self.add(eq3)
+                eq3_new=Tex(r"\sum_{\sigma_i}",r"\frac 14 \sum_{\tau_i}\log p_i(\tau_i)\comm{\sigma_i}{\tau_i^{-1}}",r"\comm{\sigma_i}{F_i}",r"=",r"\log p_i(F_i)",tex_environment="align*",tex_template=comm_temp).move_to(eq3).scale(sc)
+                eq3_new[0].set_color(BLUE)
+                eq3_new[1].set_color(YELLOW)
+                eq3_new[2].set_color(BLUE)
+                eq3_new[4].set_color(RED)
+                self.play(
+                    Transform(eq3[0],eq3_new[0]),
+                    TransformFromCopy(eq4[2],eq3_new[1]),
+                    Transform(eq3[2],eq3_new[2]),
+                    Transform(eq3[3],eq3_new[3]),
+                    Transform(eq3[4],eq3_new[4]),
+                    FadeOut(eq3[1]),
+                )
+                self.slide_break()
+
+                self.remove(*eq3,*eq3_new)
+                eq3=Tex(r"\sum_{\sigma_i}",r"\frac 14",r"\sum_{\tau_i}\log p_i(\tau_i)",r"\,\bigl\llbracket\sigma_i,\tau_i^{-1}",r"\bigr\rrbracket",r"\,\llbracket\sigma_i,",r"F_i",r"\rrbracket",r"=",r"\log p_i(F_i)",tex_environment="align*",tex_template=comm_temp).move_to(eq3_new).scale(sc)
+                eq3[0].set_color(BLUE)
+                eq3[1:5].set_color(YELLOW)
+                eq3[5:8].set_color(BLUE)
+                eq3[9].set_color(RED)
+                self.add(eq3)
+                eq3_new=Tex(r"\sum_{\tau_i}\log p(\tau_i)",r"\frac 14",r"\sum_{\sigma_i}",r"\,\bigl\llbracket\sigma_i,\tau^{-1}_i",r"F_i",r"\bigr\rrbracket",r"=",r"\log p_i(F_i)",tex_environment="align*",tex_template=comm_temp).move_to(eq3).scale(sc)
+                eq3_new[0:6].set_color(YELLOW)
+                eq3_new[7].set_color(RED)
+                self.play(
+                    Transform(eq3[0],eq3_new[2]),
+                    Transform(eq3[1],eq3_new[1]),
+                    Transform(eq3[2],eq3_new[0]),
+                    Transform(eq3[3],eq3_new[3]),
+                    Transform(eq3[4],eq3_new[5]),
+                    Transform(eq3[6],eq3_new[4]),
+                    Transform(eq3[8],eq3_new[6]),
+                    Transform(eq3[9],eq3_new[7]),
+                    FadeOut(eq3[5]),
+                    FadeOut(eq3[7]),
+                )
+                self.slide_break()
+
+                self.remove(*eq3,*eq3_new)
+                eq3=Tex(r"\sum_{\tau_i}\log p(\tau_i)",r"\frac 14 \sum_{\sigma_i} \comm{\sigma_i}{\tau^{-1}_iF_i}",r"=",r"\log p_i(F_i)",tex_environment="align*",tex_template=comm_temp).move_to(eq3).scale(sc)
+                eq3[0:2].set_color(YELLOW)
+                eq3[3].set_color(RED)
+                self.add(eq3)
+                eq3_new=Tex(r"\sum_{\tau_i}\log p(\tau_i)",r"\delta_{\tau_i,F_i}",r"=",r"\log p_i(F_i)",tex_environment="align*",tex_template=comm_temp).move_to(eq3).scale(sc)
+                eq3_new[0:2].set_color(YELLOW)
+                eq3_new[3].set_color(RED)
+                self.play(
+                    Transform(eq3,eq3_new),
+                )
+                self.slide_break()
+
+                self.remove(*eq3)
+                eq3=Tex(r"\sum_{\tau_i}",r"\log p(",r"\tau_i",r")",r"\delta_{\tau_i,F_i}",r"=",r"\log p_i(F_i)",tex_environment="align*",tex_template=comm_temp).move_to(eq3).scale(sc)
+                eq3[0:5].set_color(YELLOW)
+                eq3[6].set_color(RED)
+                self.add(eq3)
+                eq3_new=Tex(r"\log p(",r"F_i",r")",r"=",r"\log p_i(F_i)",tex_environment="align*",tex_template=comm_temp).move_to(eq3).scale(sc)
+                eq3_new[0:3].set_color(YELLOW)
+                eq3_new[4].set_color(RED)
+                self.play(
+                    Transform(eq3[0],eq3_new[1]),
+                    Transform(eq3[2],eq3_new[1]),
+                    Transform(eq3[4],eq3_new[1]),
+                    Transform(eq3[1],eq3_new[0]),
+                    Transform(eq3[3],eq3_new[2]),
+                    Transform(eq3[5],eq3_new[3]),
+                    Transform(eq3[6],eq3_new[4]),
+                )
+                self.slide_break()
+
+                self.play(FadeOut(eq3))
+                self.slide_break()
+
+                eq1_new=Tex(r"Z_E",r"=",r"\Pr(\overline{E})",tex_environment="align*").move_to(eq1).shift(3*DOWN/4 ).scale(sc)
+                eq1_new[0].set_color(BLUE)
+                eq1_new[2].set_color(RED)
+                self.play(eq4.animate.shift(3*UP/4),sr.animate.shift(3*UP/4),Transform(eq1,eq1_new))
+                self.slide_break()
+
+                nish=Tex("Nishimori condition").shift(1.5*UP)
+                self.play(FadeOut(eq1))
+                self.play(eq4.animate.move_to(ORIGIN),sr.animate.move_to(ORIGIN))
+                self.slide_break()
+
+                self.play(FadeIn(nish))
+                self.slide_break()
+
+                self.play(FadeOut(eq4),FadeOut(sr),FadeOut(nish))
+                self.slide_break()
+                # self.play(eq4.animate.shift(3*UP/4),sr.animate.shift(3*UP/4),Transform(eq1,eq1_new))
+
+            if subsec6:
                 tc_lattice=VGroup()
                 for x in range(-1,2):
                     tc_lattice+=Line(RIGHT*x+1.75*DOWN,RIGHT*x+1.75*UP).set_color(WHITE).set_opacity(0.25)
@@ -1394,7 +1643,7 @@ class StatMech(SlideScene):
 
                 self.play(FadeOut(steps),FadeOut(tc_lattice),FadeOut(RBIM))
 
-            if subsec6:
+            if subsec7:
                 tc=VGroup(VGroup(),VGroup(),VGroup(),VGroup())
                 for x in range(-1,2):
                     tc[0]+=Line(RIGHT*x+1.75*DOWN,RIGHT*x+1.75*UP).set_color(WHITE).set_opacity(0.25)
@@ -1606,9 +1855,53 @@ class OtherModels(SlideScene):
             self.play(FadeOut(toc[0:tocindex]),FadeOut(toc[tocindex+1:]), heading.animate.move_to(ORIGIN).scale(1.5).to_corner(UP))
             self.slide_break()
 
-            # contents
+            subsec1=False
+            subsec2=False
 
-            self.play(FadeIn(toc[0:tocindex]),FadeIn(toc[tocindex+1:]), ReplacementTransform(heading,toc[tocindex]))
+            subsec1=True
+            # subsec2=True
+
+            if subsec1:
+                corr=Tex("What about correlated noise models?")
+                self.play(Write(corr))
+                self.slide_break()
+
+                self.play(corr.animate.shift(1.5*UP))
+                self.slide_break()
+
+                # err=Tex(r"$\Pr\left(\bigo\right)$What about correlated noise models?")
+
+                paulitoprob=MathTex("\\text{Error}","\\to","\\text{Probability}").move_to(0.5*DOWN)
+                paulitoprob[0].set_color(YELLOW)
+                paulitoprob[2].set_color(RED)
+                self.play(FadeIn(paulitoprob[0]))
+                self.slide_break()
+                self.play(TransformFromCopy(paulitoprob[0],paulitoprob[2]),FadeIn(paulitoprob[1]))
+                self.slide_break()
+
+                pauli=MathTex("{\\bigotimes}_{i}P_i").next_to(paulitoprob[1],LEFT).set_color(YELLOW)
+                iid=MathTex("{\\prod}_{i}p_i(","P_i",")").next_to(paulitoprob[1],RIGHT)
+                iid[0].set_color(RED)
+                iid[1].set_color(YELLOW)
+                iid[2].set_color(RED)
+                self.play(
+                    Transform(paulitoprob[0],pauli),
+                    Transform(paulitoprob[2],iid)
+                )
+                self.slide_break()
+
+                corr=MathTex("{\\prod}_{j}\phi_j(","P_{R_j}",")").next_to(paulitoprob[1],RIGHT)
+                corr[0].set_color(RED)
+                corr[1].set_color(YELLOW)
+                corr[2].set_color(RED)
+                self.play(
+                    Transform(paulitoprob[2],corr)
+                )
+                self.slide_break()
+
+            # if subsec2:
+
+            # self.play(FadeIn(toc[0:tocindex]),FadeIn(toc[tocindex+1:]), ReplacementTransform(heading,toc[tocindex]))
 
 class SMD(SlideScene):
         def construct(self):
