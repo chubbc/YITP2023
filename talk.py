@@ -22,17 +22,106 @@ toc=Group(
     MyTex(r"Basics of decoding"),
     MyTex(r"Surface code"),
     MyTex(r"Stat mech mapping"),
-    MyTex(r"\bfseries Lecture 2").scale(1.2),
     MyTex(r"Examples"),
-    MyTex(r"Stat mech decoders"),
-    MyTex(r"Extensions"),
+    MyTex(r"\bfseries Lecture 2").scale(1.2),
+    MyTex(r"Stat mech decoding"),
     MyTex(r"Tensor network decoding"),
+    MyTex(r"Extensions"),
 ).scale(0.9).arrange(DOWN,aligned_edge=LEFT,buff=0.25).move_to(ORIGIN)
-toc[0:4].shift(0.75*UP)
+toc[0:5].shift(0.75*UP)
 toc[0].set_x(0).shift(0.25*UP)
-toc[4].set_x(0).shift(0.25*UP)
+toc[5].set_x(0).shift(0.25*UP)
 
-footer=MyTex("$\\texttt{christopherchubb.com/IBM2022}$").scale(1/2).to_corner(DOWN).set_opacity(.5)
+# footer=VGroup(
+#     MyTex(r"$\texttt{christopherchubb.com/IBM2022}$"),
+#     MyTex(r"$\texttt{github.com/chubbc/IBM2022}$"),
+#     MyTex(r"$\texttt{\@QuantumChubb}$"),
+# ).arrange(DOWN).scale(1/2).to_corner(DOWN).set_opacity(.5).shift(0.375*DOWN)
+
+footer=VGroup(
+    MyTex(r"$\texttt{github.com/chubbc/IBM2022}$"),
+    MyTex(r"$\texttt{christopherchubb.com/IBM2022}$"),
+    MyTex(r"$\texttt{@QuantumChubb}$"),
+).arrange(RIGHT,buff=2).scale(1/2).to_corner(DOWN).set_opacity(.5).shift(0.375*DOWN)
+
+
+if True:
+    big=True; width_thin=2.5; width_medium=5; width_thick=5
+    radius_int=0.025; radius_crosshair=0.1
+    time_shift=0; time_colour=0; time_indicate=0; time_wait=1/30; ints=[]
+    def findIntersection(A,B):
+        (x1,y1,x2,y2)=A
+        (x3,y3,x4,y4)=B
+        if (x1,y1)==(x3,y3):# or (x2,y2)==(x4,y4):
+            return None
+        px= ( (x1*y2-y1*x2)*(x3-x4)-(x1-x2)*(x3*y4-y3*x4) ) / ( (x1-x2)*(y3-y4)-(y1-y2)*(x3-x4) )
+        py= ( (x1*y2-y1*x2)*(y3-y4)-(y1-y2)*(x3*y4-y3*x4) ) / ( (x1-x2)*(y3-y4)-(y1-y2)*(x3-x4) )
+        if px<=x1 or px>=x2 or px<=x3 or px>=x4:
+            return None
+        return (px, py, 0.0)
+    def checkIntersection(scene,i,M,R,m,r,Q,int_num):
+        if m[i-1][:2]==m[i][:2]:
+            return
+        int = findIntersection(m[i-1],m[i])
+        if not big:
+            scene.play(
+                M[i-1].animate.set_color(YELLOW).set_stroke(width=width_thick),
+                M[i].animate.set_color(YELLOW).set_stroke(width=width_thick),
+                # Transform(int_text[1],Text(str(int_num)).move_to(int_text[1]).scale(0.5)),
+                run_time=time_indicate
+            )
+        if int==None:
+            if not big:
+                scene.play(
+                    M[i-1].animate.set_color(GREEN).set_stroke(width=width_medium),
+                    M[i].animate.set_color(GREEN).set_stroke(width=width_medium),
+                    run_time=time_indicate
+                )
+        if int!=None:
+            C=Circle(radius_int,color=YELLOW).set_fill(YELLOW,opacity=1).move_to(int)
+            ints.append(C)
+            Q.append((int[0],int[1],'r'))
+            Q.append((int[0],int[1],'r'))
+            Q.append((int[0],int[1],'l'))
+            Q.append((int[0],int[1],'l'))
+            r.append((int[0],int[1],m[i][2],m[i][3]))
+            R.append(Line([r[-1][0],r[-1][1],0],[r[-1][2],r[-1][3],0],stroke_width=width_thick,color=YELLOW))
+            r.append((int[0],int[1],m[i-1][2],m[i-1][3]))
+            R.append(Line([r[-1][0],r[-1][1],0],[r[-1][2],r[-1][3],0],stroke_width=width_thick,color=YELLOW))
+            Q.sort(key=lambda x:x[0])
+
+            scene.remove(M[i-1],M[i])
+            m[i-1]=(m[i-1][0],m[i-1][1],int[0],int[1])
+            m[i]=(m[i][0],m[i][1],int[0],int[1])
+            M[i-1]=Line([m[i-1][0],m[i-1][1],0],[m[i-1][2],m[i-1][3],0],stroke_width=width_thick,color=YELLOW)
+            M[i]=Line([m[i][0],m[i][1],0],[m[i][2],m[i][3],0],stroke_width=width_thick,color=YELLOW)
+            if not big:
+                scene.add(M[i-1],M[i],R[-2],R[-1])
+
+            if not big:
+                scene.play(
+                    FadeIn(C),
+                    Flash(C,flash_radius=.5),
+                    run_time=time_indicate
+                )
+            else:
+                scene.add(C)
+            scene.add_foreground_mobjects(C)
+            if not big:
+                scene.play(
+                    M[i-1].animate.set_color(GREEN).set_stroke(width=width_medium),
+                    M[i].animate.set_color(GREEN).set_stroke(width=width_medium),
+                    R[-2].animate.set_color(RED).set_stroke(width=width_thin),
+                    R[-1].animate.set_color(RED).set_stroke(width=width_thin),
+                    run_time=time_indicate
+                )
+            else:
+                scene.add(
+                    M[i-1].set_color(GREEN).set_stroke(width=width_medium),
+                    M[i].set_color(GREEN).set_stroke(width=width_medium),
+                    R[-2].set_color(RED).set_stroke(width=width_thin),
+                    R[-1].set_color(RED).set_stroke(width=width_thin))
+
 
 
 class Title(SlideScene):
@@ -68,12 +157,12 @@ class Title(SlideScene):
 
         self.play(
             toc[3].animate.scale(1/1.2).set_color(WHITE).shift(0.1*toc[3].width*LEFT/1.2),
-            toc[5].animate.scale(1.2).set_color(YELLOW).shift(0.1*toc[5].width*RIGHT)
+            toc[4].animate.scale(1.2).set_color(YELLOW).shift(0.1*toc[5].width*RIGHT)
         )
         self.slide_break()
 
         self.play(
-            toc[5].animate.scale(1/1.2).set_color(WHITE).shift(0.1*toc[5].width*LEFT/1.2),
+            toc[4].animate.scale(1/1.2).set_color(WHITE).shift(0.1*toc[5].width*LEFT/1.2),
             toc[6].animate.scale(1.2).set_color(YELLOW).shift(0.1*toc[6].width*RIGHT)
         )
         self.slide_break()
@@ -1421,7 +1510,7 @@ class StatMech(SlideScene):
 
 class Examples(SlideScene):
         def construct(self):
-            tocindex=5
+            tocindex=4
             heading = toc[tocindex].copy()
             self.add(toc[0:tocindex],heading,toc[tocindex+1:],footer)
             self.play(FadeOut(toc[0:tocindex]),FadeOut(toc[tocindex+1:]), heading.animate.move_to(ORIGIN).scale(1.5).to_corner(UP))
@@ -1430,12 +1519,10 @@ class Examples(SlideScene):
             subsec1=False
             subsec2=False
             subsec3=False
-            subsec4=False
 
             subsec1=True
             subsec2=True
             subsec3=True
-            subsec4=True
 
             if subsec1:
                 tc_lattice=VGroup()
@@ -1788,9 +1875,6 @@ class Examples(SlideScene):
                 self.play(nish2.animate.shift(1.5*RIGHT))
                 self.slide_break()
 
-
-
-
                 tc=VGroup(VGroup(),VGroup(),VGroup(),VGroup())
                 for x in range(-1,2):
                     tc[0]+=Line(RIGHT*x+1.75*DOWN,RIGHT*x+1.75*UP).set_color(WHITE).set_opacity(0.25)
@@ -1923,60 +2007,7 @@ class Examples(SlideScene):
                 self.play(FadeOut(bit[3:]),FadeOut(nish2[1:3]),FadeOut(bit2),FadeOut(tc[0]),FadeOut(tc[1]),FadeOut(tc[3][3:]),FadeOut(bit[0:2]))
                 self.slide_break()
 
-            if subsec4:
-                # corr=MyTex("What about correlated noise models?")
-                # self.play(Write(corr))
-                # self.slide_break()
-                #
-                # self.play(corr.animate.shift(1.5*UP))
-                # self.slide_break()
-                #
-                # # err=MyTex(r"$\Pr\left(\bigo\right)$What about correlated noise models?")
-                #
-                # paulitoprob=MathTex("\\text{Error}","\\to","\\text{Probability}").move_to(0.5*DOWN)
-                # paulitoprob[0].set_color(YELLOW)
-                # paulitoprob[2].set_color(RED)
-                # self.play(FadeIn(paulitoprob[0]))
-                # self.slide_break()
-                # self.play(TransformFromCopy(paulitoprob[0],paulitoprob[2]),FadeIn(paulitoprob[1]))
-                # self.slide_break()
-                #
-                # pauli=MathTex("{\\bigotimes}_{i}P_i").next_to(paulitoprob[1],LEFT).set_color(YELLOW)
-                # iid=MathTex("{\\prod}_{i}p_i(","P_i",")").next_to(paulitoprob[1],RIGHT)
-                # iid[0].set_color(RED)
-                # iid[1].set_color(YELLOW)
-                # iid[2].set_color(RED)
-                # self.play(
-                #     Transform(paulitoprob[0],pauli),
-                #     Transform(paulitoprob[2],iid)
-                # )
-                # self.slide_break()
-                #
-                # corr=MathTex("{\\prod}_{j}\phi_j(","P_{R_j}",")").next_to(paulitoprob[1],RIGHT)
-                # corr[0].set_color(RED)
-                # corr[1].set_color(YELLOW)
-                # corr[2].set_color(RED)
-                # self.play(
-                #     Transform(paulitoprob[2],corr)
-                # )
-                # self.slide_break()
-
-                grid=VGroup()
-                for x in range(-2,3):
-                    for y in range(-2,3):
-                        grid+=Circle(radius=0.1).move_to([x,y,0]).set_color(BLUE)
-                for x in range(-2,3):
-                    for y in range(-2,3):
-                        grid+=Circle(radius=0.1).move_to([x,y,+1]).set_color(RED)
-                self.play(FadeIn(grid))
-                self.slide_break()
-
-                self.play(grid.animate.rotate(PI/4,axis=UP))
-                self.slide_break()
-
-            # if subsec2:
-
-            # self.play(FadeIn(toc[0:tocindex]),FadeIn(toc[tocindex+1:]), ReplacementTransform(heading,toc[tocindex]))
+            self.play(FadeIn(toc[0:tocindex]),FadeIn(toc[tocindex+1:]), ReplacementTransform(heading,toc[tocindex]))
 
 class SMD(SlideScene):
         def construct(self):
@@ -1986,9 +2017,384 @@ class SMD(SlideScene):
             self.play(FadeOut(toc[0:tocindex]),FadeOut(toc[tocindex+1:]), heading.animate.move_to(ORIGIN).scale(1.5).to_corner(UP))
             self.slide_break()
 
-            # steps=VGroup(
-            #     MyTex("")
-            # )
+            subsec1=False
+            subsec2=False
+            subsec3=False
+            subsec4=False
+
+            subsec1=True
+            subsec2=True
+            subsec3=True
+            subsec4=True
+
+            if subsec1:
+                # Reduction
+
+                maxlike=MyTex(
+                    r"\mathop{\mathrm{arg\,max}}",
+                    r"_{\overline{E}}",
+                    r" \mathrm{Pr}(",
+                    r"\overline{E}",
+                    r")",tex_environment="align*")
+                maxlike[1].set_color(BLUE)
+                maxlike[2].set_color(RED)
+                maxlike[3].set_color(BLUE)
+                maxlike[4].set_color(RED)
+                self.play(FadeIn(maxlike))
+                self.slide_break()
+
+                oldmaxlike=maxlike
+                maxlike=MyTex(
+                    r"\mathop{\mathrm{arg\,max}}",
+                    r"_{\overline{E}}",
+                    r"Z_{",
+                    r"E",
+                    r"}(T_N)",tex_environment="align*")
+                maxlike[1].set_color(BLUE)
+                maxlike[2].set_color(RED)
+                maxlike[3].set_color(BLUE)
+                maxlike[4].set_color(RED)
+                self.play(
+                    ReplacementTransform(oldmaxlike[0],maxlike[0]),
+                    ReplacementTransform(oldmaxlike[1],maxlike[1]),
+                    ReplacementTransform(oldmaxlike[2],maxlike[2]),
+                    ReplacementTransform(oldmaxlike[3],maxlike[3]),
+                    ReplacementTransform(oldmaxlike[4],maxlike[4]),
+                )
+                self.slide_break()
+
+                self.play(maxlike.animate.shift(2*UP))
+                self.slide_break()
+
+                steps=VGroup(
+                    MyTex("Step 1: Measure the syndrome, $s$"),
+                    MyTex("Step 2: Construct an arbitrary error $A_s$ with syndrome $s$"),
+                    MyTex("Step 3: Approximate $\Pr(\overline{A_sL_l})=Z_{A_sL_l}$ for each logical class"),
+                    MyTex("Step 4: Pick the $l$ for which $\Pr(\overline{A_sL_l})$ is maximised"),
+                    MyTex("Step 5: Apply $(A_sL_l)^{-1}$"),
+                ).arrange(DOWN,aligned_edge=LEFT).move_to(DOWN)
+                for i in range(5):
+                    self.play(Write(steps[i]))
+                    self.slide_break()
+
+                self.play(FadeOut(steps),FadeOut(maxlike))
+                self.slide_break()
+
+            if subsec2:
+
+                ax=Axes(
+                    x_range=[0,10,10],
+                    y_range=[0,1,1],
+                    x_length=10,
+                    y_length=4,
+                    axis_config={
+                        "include_tip": True,
+                        "include_numbers": False,
+                        "numbers_to_exclude": [r for r in range(3,25) if np.mod(r,5)!=0]
+                    },
+                )
+                axis_labels=MyTex("Physical error rate", "Logical error rate").scale(0.5)
+                axis_labels[0].next_to(ax,DOWN)
+                axis_labels[1].rotate(90*DEGREES).next_to(ax,LEFT)
+
+                x=np.arange(-5,5,0.1)
+                l1 = ax.get_line_graph(
+                    x_values = x+5,
+                    y_values = 1/(1+np.exp(-x/4)),
+                    vertex_dot_radius=0,
+                    line_color=RED,
+                    stroke_width = 3,
+                )
+                l2 = ax.get_line_graph(
+                    x_values = x+5,
+                    y_values = 1/(1+np.exp(-x/2)),
+                    vertex_dot_radius=0,
+                    line_color=ORANGE,
+                    stroke_width = 3,
+                )
+                l3 = ax.get_line_graph(
+                    x_values = x+5,
+                    y_values = 1/(1+np.exp(-x*2)),
+                    vertex_dot_radius=0,
+                    line_color=YELLOW,
+                    stroke_width = 3,
+                )
+                l4 = ax.get_line_graph(
+                    x_values = x+5,
+                    y_values = 1/(1+np.exp(-x*4)),
+                    vertex_dot_radius=0,
+                    line_color=GREEN,
+                    stroke_width = 3,
+                )
+                l5 = ax.get_line_graph(
+                    x_values = x+5,
+                    y_values = 1/(1+np.exp(-x*8)),
+                    vertex_dot_radius=0,
+                    line_color=BLUE,
+                    stroke_width = 3,
+                )
+                th=(ax.get_line_graph(
+                    x_values = [5,5],
+                    y_values = [0,1],
+                    vertex_dot_radius=0,
+                    line_color=WHITE,
+                    stroke_width = 3,
+                ))
+                self.play(FadeIn(ax),FadeIn(axis_labels))
+                self.slide_break()
+
+                self.play(Write(l1,run_time=1))
+                self.slide_break()
+                self.play(Write(l2,run_time=2))
+                self.slide_break()
+                self.play(Write(l3,run_time=3))
+                self.slide_break()
+                self.play(Write(l4,run_time=4))
+                self.slide_break()
+                self.play(Write(l5,run_time=5))
+                self.slide_break()
+                self.play(Write(th))
+                self.slide_break()
+
+                x=0.5
+                c=RED
+                low_hist=VGroup()
+                r=np.random.rand(4)
+                r[0]=r[0]+x
+                r=2*r/sum(r)
+                for i in range(4):
+                    low_hist+=Rectangle(width=0.5,height=r[i],fill_opacity=0.5).shift((1+i)*RIGHT/2+r[i]*UP/2)
+                low_hist.set_color(c).next_to(3*LEFT,UP)
+                self.play(FadeIn(low_hist))
+                self.slide_break()
+                high_hist=VGroup()
+                r=np.random.rand(4)+x
+                r=2*r/sum(r)
+                for i in range(4):
+                    high_hist+=Rectangle(width=0.5,height=r[i],fill_opacity=0.5).shift((1+i)*RIGHT/2+r[i]*UP/2)
+                high_hist.set_color(c).next_to(3*RIGHT+1.5*DOWN,UP)
+                self.play(FadeIn(high_hist))
+                self.slide_break()
+
+                x=[2,4,8,16]
+                c=[ORANGE,YELLOW,GREEN,BLUE]
+                for j in range(4):
+                    old_low_hist=low_hist
+                    low_hist=VGroup()
+                    r=np.random.rand(4)
+                    r[0]=r[0]+x[j]
+                    r=2*r/sum(r)
+                    for i in range(4):
+                        low_hist+=Rectangle(width=0.5,height=r[i],fill_opacity=0.5).shift((1+i)*RIGHT/2+r[i]*UP/2)
+                    low_hist.set_color(c[j]).next_to(3*LEFT,UP)
+
+                    old_high_hist=high_hist
+                    high_hist=VGroup()
+                    r=np.random.rand(4)+x[j]
+                    r=2*r/sum(r)
+                    for i in range(4):
+                        high_hist+=Rectangle(width=0.5,height=r[i],fill_opacity=0.5).shift((1+i)*RIGHT/2+r[i]*UP/2)
+                    high_hist.set_color(c[j]).next_to(3*RIGHT+1.5*DOWN,UP)
+                    self.play(
+                        ReplacementTransform(old_low_hist,low_hist),
+                        ReplacementTransform(old_high_hist,high_hist)
+                    )
+                    self.slide_break()
+
+                self.play(
+                    FadeOut(ax),
+                    FadeOut(l1),
+                    FadeOut(l2),
+                    FadeOut(l3),
+                    FadeOut(l4),
+                    FadeOut(l5),
+                    FadeOut(low_hist),
+                    FadeOut(high_hist),
+                    FadeOut(axis_labels),
+                    FadeOut(th),
+                )
+
+                self.slide_break()
+
+            if subsec3:
+                # Phase transition proof
+
+                prob=MyTex("\Pr(s,l):=\Pr(\overline{D_sL_l})",tex_environment="align*").move_to(UP/2)
+                self.play(FadeIn(prob))
+                self.slide_break()
+
+                mld=MyTex(r"MLD: $\Pr(s,1)\geq \Pr(s,l)~\forall s,l$").move_to(DOWN/2)
+                self.play(FadeIn(mld))
+                self.slide_break()
+
+                self.play(prob.animate.shift(2*UP),mld.animate.shift(2*UP))
+                self.slide_break()
+
+                fed=MyTex(
+                    r"\Delta_m(E):=&F_{EL_m}(\beta_N)-F_{E}(\beta_n)\\",
+                    r"\Delta_m(s,l)=&\frac{1}{\beta_N}\log \frac{\Pr(s,l)}{\Pr(s,l\oplus m)}\\",
+                    r"\Delta_m:=&\left\langle\Delta_m(s,l)\right\rangle_{s,l}\\",
+                    r"=&\frac{1}{\beta_N}\sum_{s,l}\Pr(s,l)\log \frac{\Pr(s,l)}{\Pr(s,l\oplus m)}",
+                    tex_environment="align*").move_to(2*DOWN)
+                self.play(Write(fed[0]))
+                self.slide_break()
+
+                self.play(Write(fed[1]))
+                self.slide_break()
+
+                self.play(FadeOut(prob),FadeOut(mld),FadeOut(fed[0]),fed[1].animate.shift(2*UP))
+                self.slide_break()
+
+                fed[2:4].shift(1.5*UP)
+                self.play(Write(fed[2]))
+                self.slide_break()
+                self.play(Write(fed[3]))
+                self.slide_break()
+
+                self.play(FadeOut(fed[1]),FadeOut(fed[2]),FadeOut(fed[3]))
+                self.slide_break()
+
+                below=VGroup(
+                    MyTex("Below threshold").scale(1.25),
+                    MyTex(r"$\Pr(\text{dec.\ success})\to 1$"),
+                    # MyTex(r"$\Delta_m\to +\infty$"),
+                    MyTex(r"$\Delta_m(E)\stackrel{a.s.}{\to}+\infty$"),
+                ).arrange(DOWN).set_color(BLUE).shift(3.5*LEFT)
+                above=VGroup(
+                    MyTex("Above threshold").scale(1.25),
+                    MyTex(r"$\Pr(\text{dec.\ success})\to 1/K$"),
+                    # MyTex(r"$\Delta_m\to +\infty$"),
+                    MyTex(r"$\Delta_m(E)\stackrel{a.s.}{\to}0$"),
+                ).arrange(DOWN).set_color(RED).shift(3.5*RIGHT)
+                below[0].shift(0.5*UP)
+                above[0].shift(0.5*UP)
+
+                self.play(FadeIn(below[0]),FadeIn(above[0]))
+                self.slide_break()
+
+                self.play(Write(below[1:]))
+                self.slide_break()
+
+                self.play(Write(above[1:]))
+                self.slide_break()
+
+                self.play(FadeOut(below),FadeOut(above))
+                self.slide_break()
+
+            if subsec4:
+                # Phase diagram + other decoders (beta-MFE, MP=MWPM, TND, Wootton, BSV matchgate)
+                ax=Axes(
+                    x_range=[0,2,2],
+                    y_range=[0,5,5],
+                    x_length=6,
+                    y_length=4,
+                    axis_config={
+                        "include_tip": False,
+                        "include_numbers": False,
+                        "numbers_to_exclude": [r for r in range(3,25) if np.mod(r,5)!=0]
+                    },
+                )
+                axis_labels=MyTex("Noise parameter", "Temperature").scale(0.75)
+                axis_labels[0].next_to(ax,DOWN)
+                axis_labels[1].rotate(90*DEGREES).next_to(ax,LEFT)
+
+                y=np.arange(0,4.01,0.01)
+                pt = ax.get_line_graph(
+                    x_values = np.sqrt(1-(y-2)**2/(y-6)**2),
+                    y_values = y,
+                    vertex_dot_radius=0,
+                    line_color=WHITE,
+                    stroke_width = 3,
+                )
+                phase=Polygon(*[ax.coords_to_point(np.sqrt(1-(yy-2)**2/(yy-6)**2),yy) for yy in y],ax.coords_to_point(0,0),fill_opacity=0.25,fill_color=YELLOW,stroke_opacity=0)
+
+                nish=VGroup()
+                for x in np.arange(0,2,0.1):
+                    nish+=Line(
+                        ax.coords_to_point(x,np.sqrt(8*x+1)-1),
+                        ax.coords_to_point(x+0.05,np.sqrt(8*x+1+8*0.05)-1)
+                    )
+
+                # self.add(DashedVMobject(nish))
+                self.play(Write(ax))
+                self.slide_break()
+
+                self.play(Write(axis_labels))
+                self.slide_break()
+
+                self.play(Write(pt))
+                self.slide_break()
+
+                self.play(Write(nish))
+                self.slide_break()
+
+                self.play(Write(phase))
+                self.slide_break()
+
+                phase_text=VGroup(
+                    VGroup(
+                        MyTex("Ordered").scale(1.2),
+                        MyTex("EC possible"),
+                        MyTex(r"$\Delta_m(E)\to +\infty$"),
+                    ).arrange(DOWN).move_to(2.75*LEFT+0.5*DOWN),
+                    VGroup(
+                        MyTex("Disrdered").scale(1.2),
+                        MyTex("EC impossible"),
+                        MyTex(r"$\Delta_m(E)\to 0$"),
+                    ).arrange(DOWN).move_to(2*RIGHT+2*UP),
+                ).scale(0.5)
+
+                self.play(FadeIn(phase_text[0]))
+                self.slide_break()
+
+                self.play(FadeIn(phase_text[1]))
+                self.slide_break()
+
+                ML=VGroup(
+                    Circle(radius=0.1,fill_opacity=1).move_to(ax.coords_to_point(1,2)),
+                    Arrow(ax.coords_to_point(1.5,1.5),ax.coords_to_point(1,2)),
+                    MyTex("ML").next_to(ax.coords_to_point(1.5,1.5),RIGHT,buff=0).scale(0.75)
+                ).set_color(BLUE)
+
+                MP=VGroup(
+                    Circle(radius=0.1,fill_opacity=1).move_to(ax.coords_to_point(np.sqrt(8)/3,0)),
+                    Arrow(ax.coords_to_point(1.5,0.5),ax.coords_to_point(np.sqrt(8)/3,0)),
+                    MyTex("MP").next_to(ax.coords_to_point(1.5,0.5),RIGHT,buff=0).scale(0.75)
+                ).set_color(RED)
+
+                MFE=VGroup(
+                    Circle(radius=0.1,fill_opacity=1).move_to(ax.coords_to_point(np.sqrt(24)/5,1)),
+                    Arrow(ax.coords_to_point(1.5,1),ax.coords_to_point(np.sqrt(24)/5,1)),
+                    MyTex("$T$-MFE").next_to(ax.coords_to_point(1.5,1),RIGHT,buff=0).scale(0.75)
+                ).set_color(GREEN)
+
+
+                self.play(Write(ML))
+                self.slide_break()
+
+                self.play(Write(MP))
+                self.slide_break()
+
+                self.play(Write(MFE))
+                self.slide_break()
+
+                self.play(
+                    FadeOut(ax),
+                    FadeOut(pt),
+                    FadeOut(nish),
+                    FadeOut(phase_text),
+                    FadeOut(phase),
+                    FadeOut(axis_labels),
+                    FadeOut(ML),
+                    FadeOut(MP),
+                    FadeOut(MFE),
+                )
+
+                # self.add(phase,ax,axis_labels,pt)
+                # self.add(nish)
+
+
+                self.slide_break()
 
             self.play(FadeIn(toc[0:tocindex]),FadeIn(toc[tocindex+1:]), ReplacementTransform(heading,toc[tocindex]))
 
@@ -2000,37 +2406,1019 @@ class TND(SlideScene):
             self.play(FadeOut(toc[0:tocindex]),FadeOut(toc[tocindex+1:]), heading.animate.move_to(ORIGIN).scale(1.5).to_corner(UP))
             self.slide_break()
 
-            # contents
+            subsec1=False
+            subsec2=False
+            subsec3=False
+            subsec4=False
+
+            subsec1=True
+            subsec2=True
+            subsec3=True
+            subsec4=True
+
+            if subsec1:
+
+                handwaving=ImageMobject("handwaving.png").scale(1)
+                self.play(FadeIn(handwaving))
+                self.slide_break()
+
+                self.play(FadeOut(handwaving))
+                self.slide_break()
+
+                tc=VGroup()
+                tc+=Line([-1.25,-1,0],[+1.25,-1,0],stroke_opacity=0.5)
+                tc+=Line([-1.25,+1,0],[+1.25,+1,0],stroke_opacity=0.5)
+                tc+=Line([-1.25,0,0],[+1.25,0,0],stroke_opacity=0.5)
+                tc+=Line([-0.5,1,0],[-0.5,-1,0],stroke_opacity=0.5)
+                tc+=Line([0.5,1,0],[0.5,-1,0],stroke_opacity=0.5)
+                tc+=Circle(radius=0.05,color=WHITE,fill_opacity=1).move_to(ORIGIN)
+                tc+=Circle(radius=0.05,color=WHITE,fill_opacity=1).move_to(LEFT)
+                tc+=Circle(radius=0.05,color=WHITE,fill_opacity=1).move_to(RIGHT)
+                tc+=Circle(radius=0.05,color=WHITE,fill_opacity=1).move_to(UP)
+                tc+=Circle(radius=0.05,color=WHITE,fill_opacity=1).move_to(UP+LEFT)
+                tc+=Circle(radius=0.05,color=WHITE,fill_opacity=1).move_to(UP+RIGHT)
+                tc+=Circle(radius=0.05,color=WHITE,fill_opacity=1).move_to(DOWN+LEFT)
+                tc+=Circle(radius=0.05,color=WHITE,fill_opacity=1).move_to(DOWN+RIGHT)
+                tc+=Circle(radius=0.05,color=WHITE,fill_opacity=1).move_to(DOWN)
+                tc+=Circle(radius=0.05,color=WHITE,fill_opacity=1).move_to(DOWN/2+LEFT/2)
+                tc+=Circle(radius=0.05,color=WHITE,fill_opacity=1).move_to(DOWN/2+RIGHT/2)
+                tc+=Circle(radius=0.05,color=WHITE,fill_opacity=1).move_to(UP/2+LEFT/2)
+                tc+=Circle(radius=0.05,color=WHITE,fill_opacity=1).move_to(UP/2+RIGHT/2)
+                tc+=Circle(radius=0.1,color=RED).move_to([-1,+0.5,0])
+                tc+=Circle(radius=0.1,color=RED).move_to([+1,+0.5,0])
+                tc+=Circle(radius=0.1,color=RED).move_to([-1,-0.5,0])
+                tc+=Circle(radius=0.1,color=RED).move_to([+1,-0.5,0])
+                tc+=Circle(radius=0.1,color=RED).move_to([0,-0.5,0])
+                tc+=Circle(radius=0.1,color=RED).move_to([0,+0.5,0])
+                tc+=Circle(radius=0.1,color=BLUE,fill_color=config.background_color,fill_opacity=1).move_to([-0.5,-1,0])
+                tc+=Circle(radius=0.1,color=BLUE,fill_color=config.background_color,fill_opacity=1).move_to([-0.5,+1,0])
+                tc+=Circle(radius=0.1,color=BLUE,fill_color=config.background_color,fill_opacity=1).move_to([-0.5, 0,0])
+                tc+=Circle(radius=0.1,color=BLUE,fill_color=config.background_color,fill_opacity=1).move_to([+0.5,-1,0])
+                tc+=Circle(radius=0.1,color=BLUE,fill_color=config.background_color,fill_opacity=1).move_to([+0.5,+1,0])
+                tc+=Circle(radius=0.1,color=BLUE,fill_color=config.background_color,fill_opacity=1).move_to([+0.5, 0,0])
+
+                tn=VGroup()
+                for x in range(3):
+                    tn+=Line([x,0,0],[x,2,0],color=RED)
+                    tn+=Line([0,x,0],[2,x,0],color=BLUE)
+                for x in range(2):
+                    tn+=Line([x+.5,0,0],[x+.5,2,0],color=BLUE)
+                    tn+=Line([0,x+.5,0],[2,x+.5,0],color=RED)
+                for x in range(2):
+                    for y in range(3):
+                        tn+=Circle(radius=0.05,color=BLUE,fill_opacity=1).move_to([x+0.5,y,0])
+                for x in range(3):
+                    for y in range(2):
+                        tn+=Circle(radius=0.05,color=RED,fill_opacity=1).move_to([x,y+.5,0])
+                for x in range(3):
+                    for y in range(3):
+                        tn+=Rectangle(width=0.2,height=0.2,fill_color=GRAY,fill_opacity=1).move_to([x,y,0])
+                for x in range(2):
+                    for y in range(2):
+                        tn+=Rectangle(width=0.2,height=0.2,fill_color=GRAY,fill_opacity=1).move_to([x+.5,y+.5,0])
+
+                tn+=VGroup(Line([2.5,1,0],[3.5,1,0],color=RED).shift(0.5*RIGHT),
+                    Line([3,0.5,0],[3,1.5,0],color=BLUE).shift(0.5*RIGHT),
+                    Rectangle(width=0.2,height=0.2,fill_color=GRAY,fill_opacity=1).move_to([3.5,1,0]),
+                    MyTex("$x_1$",color=BLUE).move_to([3,1.7,0]).shift(0.5*RIGHT).scale(0.75),
+                    MyTex("$x_2$",color=BLUE).move_to([3,.3,0]).shift(0.5*RIGHT).scale(0.75),
+                    MyTex("$z_1$",color=RED).move_to([2.3,1,0]).shift(0.5*RIGHT).scale(0.75),
+                    MyTex("$z_2$",color=RED).move_to([3.7,1,0]).shift(0.5*RIGHT).scale(0.75),
+                    MyTex("=p(E",r"X^{x_1+x_2}",r"Z^{z_1+z_2}",r")",tex_environment="align*").move_to([3.5,-0.2,0]).shift(0.5*RIGHT).scale(0.75)
+                    ).scale(0.75)
+                tn[-1][-1][1].set_color(BLUE)
+                tn[-1][-1][2].set_color(RED)
+
+
+                tc.scale(1.25).next_to(3.5*LEFT+1.5*UP,DOWN)
+                tn.scale(1.25).next_to(3*RIGHT+1.5*UP,DOWN)
+
+                self.play(Write(tc))
+                self.slide_break()
+
+                self.play(TransformFromCopy(tc,tn[:-1]))
+                self.slide_break()
+
+                self.play(Write(tn[-1]))
+                self.slide_break()
+
+                self.play(FadeOut(tn),FadeOut(tc))
+
+            if subsec2:
+                a=1.5     # lattice spacing
+                r=.75   # MPS square radius
+                w=5   # thinner line thickness
+                ww=20  # thicker line thickness
+
+                MPS1=Group(
+                    Line(2*a*LEFT,2*a*RIGHT),
+                    Line(-2*a*RIGHT,-2*a*RIGHT+UP,stroke_width=w),
+                    Line(-1*a*RIGHT,-1*a*RIGHT+UP,stroke_width=w),
+                    Line( 0*a*RIGHT, 0*a*RIGHT+UP,stroke_width=w),
+                    Line(+1*a*RIGHT,+1*a*RIGHT+UP,stroke_width=w),
+                    Line(+2*a*RIGHT,+2*a*RIGHT+UP,stroke_width=w),
+                    Square(r).set_fill("#9999ff",opacity=1).move_to(-2*a*RIGHT),
+                    Square(r).set_fill("#9999ff",opacity=1).move_to(-1*a*RIGHT),
+                    Square(r).set_fill("#9999ff",opacity=1).move_to( 0*a*RIGHT),
+                    Square(r).set_fill("#9999ff",opacity=1).move_to(+1*a*RIGHT),
+                    Square(r).set_fill("#9999ff",opacity=1).move_to(+2*a*RIGHT),
+                    MyTex("Matrix Product State").move_to(DOWN)
+                ).move_to(DOWN)
+
+                self.play(FadeIn(MPS1[6:-1]))
+                self.add_foreground_mobjects(MPS1[6:-1])
+                self.play(FadeIn(MPS1[:6]))
+                self.slide_break()
+
+                self.play(FadeIn(MPS1[-1]))
+                self.slide_break()
+
+                bonds=Group(
+                    MyTex("Bonds").move_to(UP).set_color(YELLOW),
+                    Triangle(color=YELLOW).scale(0.2).set_fill(YELLOW,opacity=1).rotate(60*DEGREES).move_to(-1.5*a*RIGHT-0.5*UP),
+                    Triangle(color=YELLOW).scale(0.2).set_fill(YELLOW,opacity=1).rotate(60*DEGREES).move_to(-0.5*a*RIGHT-0.5*UP),
+                    Triangle(color=YELLOW).scale(0.2).set_fill(YELLOW,opacity=1).rotate(60*DEGREES).move_to(+0.5*a*RIGHT-0.5*UP),
+                    Triangle(color=YELLOW).scale(0.2).set_fill(YELLOW,opacity=1).rotate(60*DEGREES).move_to(+1.5*a*RIGHT-0.5*UP),
+                )
+                self.play(FadeIn(bonds[0]),FadeIn(bonds[1:],shift=DOWN))
+                self.slide_break()
+
+
+                self.remove_foreground_mobjects(MPS1[6:-1])
+
+                self.play(FadeOut(MPS1),FadeOut(bonds))
+                self.slide_break()
+
+            if subsec3:
+                a=1.25     # lattice spacing
+                r=.5   # MPS square radius
+                g=0.1   # gap between multi-edges
+
+                # Square(r).set_fill("#9999ff",opacity=1).move_to(+2*a*RIGHT),
+
+                TN_ten=Group(*[
+                    Group(*[
+                        Square(r).set_fill("#ff9999",opacity=1).move_to([i*a,j*a,0])
+                    for j in range(4)])
+                for i in range(4)])
+                TN_ver=Group(*[Line([0,i*a,0],[3*a,i*a,0]) for i in range(4)])
+                TN_hor=Group(*[Line([j*a,0,0],[j*a,3*a,0]) for j in range(4)])
+
+                self.add_foreground_mobjects(TN_ten)
+
+                TN=Group(TN_ten,TN_hor,TN_ver).move_to(DOWN/2)
+
+                self.play(FadeIn(TN[0]))
+                self.play(FadeIn(TN[1]),FadeIn(TN[2]))
+                self.slide_break()
+
+                self.play(Indicate(TN_ten[0],scale=1.1))
+                self.slide_break()
+
+                MPS=Group(*[
+                    Square(r).set_fill("#9999ff",opacity=1).move_to([0,j*a,0])
+                for j in range(4)]).move_to(TN_ten[0])
+                self.play(ReplacementTransform(TN_ten[0],MPS))
+                self.slide_break()
+
+                # self.play(Circumscribe(MPS))
+                # self.slide_break()
+                #
+                # self.play(Circumscribe(TN_ten[1:]))
+                # self.slide_break()
+
+                self.play( *[Circumscribe(Group(MPS[j],TN_ten[1][j]),run_time=2) for j in range(4)] )
+                # for j in range(4):
+                #     self.play(Circumscribe(Group(
+                #         MPS[3-j],
+                #         TN_ten[1][3-j]
+                #     )))
+                self.slide_break()
+
+                self.play(
+                    MPS[0].animate.set_fill("#ff66ff"),
+                    MPS[1].animate.set_fill("#ff66ff"),
+                    MPS[2].animate.set_fill("#ff66ff"),
+                    MPS[3].animate.set_fill("#ff66ff"),
+                    FadeOut(TN_ten[1],target_position=MPS),
+                    TN_hor[1].animate.shift((a-g)*LEFT),
+                    TN_hor[0].animate.shift(g*LEFT),
+                )
+                self.slide_break()
+
+                bondarrows=Group(*[
+                    Triangle(color=YELLOW).scale(0.2).set_fill(YELLOW,opacity=1).rotate(-30*DEGREES).move_to(i*a*UP)
+                for i in range(3)]).move_to(MPS).shift(0.5*RIGHT)
+
+                self.play(FadeIn(bondarrows,shift=LEFT))
+                self.slide_break()
+
+                self.play(FadeOut(bondarrows))
+                self.slide_break()
+
+                self.play(
+                    MPS[0].animate.set_fill("#9999ff"),
+                    MPS[1].animate.set_fill("#9999ff"),
+                    MPS[2].animate.set_fill("#9999ff"),
+                    MPS[3].animate.set_fill("#9999ff"),
+                    TN_hor[1].animate.shift(g*LEFT),
+                    TN_hor[0].animate.shift(g*RIGHT),
+                )
+                self.remove(TN_hor[1])
+                self.slide_break()
+
+
+                self.play(
+                    MPS[0].animate.set_fill("#ff66ff"),
+                    MPS[1].animate.set_fill("#ff66ff"),
+                    MPS[2].animate.set_fill("#ff66ff"),
+                    MPS[3].animate.set_fill("#ff66ff"),
+                    FadeOut(TN_ten[2],target_position=MPS),
+                    TN_hor[2].animate.shift((2*a-g)*LEFT),
+                    TN_hor[0].animate.shift(g*LEFT),
+                )
+                self.slide_break()
+                self.play(
+                    MPS[0].animate.set_fill("#9999ff"),
+                    MPS[1].animate.set_fill("#9999ff"),
+                    MPS[2].animate.set_fill("#9999ff"),
+                    MPS[3].animate.set_fill("#9999ff"),
+                    TN_hor[2].animate.shift(g*LEFT),
+                    TN_hor[0].animate.shift(g*RIGHT),
+                )
+                self.remove(TN_hor[2])
+                self.slide_break()
+
+                self.play(
+                    MPS[0].animate.set_fill("#ff66ff"),
+                    MPS[1].animate.set_fill("#ff66ff"),
+                    MPS[2].animate.set_fill("#ff66ff"),
+                    MPS[3].animate.set_fill("#ff66ff"),
+                    FadeOut(TN_ten[3],target_position=MPS),
+                    TN_hor[3].animate.shift((3*a-g)*LEFT),
+                    TN_hor[0].animate.shift(g*LEFT),
+                    Uncreate(TN_ver[0]),
+                    Uncreate(TN_ver[1]),
+                    Uncreate(TN_ver[2]),
+                    Uncreate(TN_ver[3]),
+                )
+                self.slide_break()
+                self.play(
+                    MPS[0].animate.set_fill("#9999ff"),
+                    MPS[1].animate.set_fill("#9999ff"),
+                    MPS[2].animate.set_fill("#9999ff"),
+                    MPS[3].animate.set_fill("#9999ff"),
+                    TN_hor[3].animate.shift(g*LEFT),
+                    TN_hor[0].animate.shift(g*RIGHT),
+                )
+                self.remove(TN_hor[3])
+                self.slide_break()
+
+
+                self.play(
+                    FadeOut(MPS[3],target_position=MPS[2]),
+                    FadeOut(MPS[0],target_position=MPS[1]),
+                    TN_hor[0].animate.scale(0.5)
+                )
+                self.slide_break()
+
+                res_ten=Square(r).set_fill("#9999ff",opacity=1).move_to(MPS[1]).shift(a*UP/2)
+
+                self.play(
+                    FadeOut(MPS[1],target_position=res_ten),
+                    FadeOut(MPS[2],target_position=res_ten),
+                    FadeIn(res_ten),
+                    TN_hor[0].animate.scale(0)
+                )
+                self.remove(TN_hor[0])
+                self.slide_break()
+
+                self.play(res_ten.animate.shift(1.5*a*RIGHT))
+                self.slide_break()
+
+                self.play(FadeOut(res_ten))
+
+            if subsec4:
+
+                x=[3,1,5,2,0,6,4]
+                y=[0,1,2,3,4,5,6]
+                e=[(0,1),(0,2),(1,3),(1,4),(2,3),(2,5),(3,4),(3,5),(3,6),(4,6),(5,6)]
+                sweep_l=DashedLine([-7*.75,-3.5*.75-.5,0],[-7*.75,3.5*.75-.5,0], dash_length=0.25*.75)
+                sweep_t=Group(*[
+                    Circle(0.25,color=WHITE).set_fill("#ff9999",opacity=1).move_to([.75*1.5*(y[i]-3),.75*.9*(x[i]-3)-.5,0])
+                for i in range(7)])
+                sweep_e=Group(*[
+                    Line([.75*1.5*(y[ee[0]]-3),.75*(x[ee[0]]-3)-.5,0],[.75*1.5*(y[ee[1]]-3),.75*.9*(x[ee[1]]-3)-.5,0])
+                for ee in e])
+
+
+                self.play(FadeIn(sweep_t))
+                self.add_foreground_mobjects(sweep_t)
+                self.play(FadeIn(sweep_e))
+                self.slide_break()
+
+                self.play(FadeIn(sweep_l.shift(RIGHT/2),shift=RIGHT/2))
+                self.slide_break()
+
+                self.play(sweep_l.animate.shift(1.375*RIGHT))
+                self.slide_break()
+
+                new_ten=Circle(0.25,color=WHITE).set_fill("#ff66ff",opacity=1).move_to([-4.5,-0.5,0])
+
+                self.play(
+                    ReplacementTransform(sweep_t[0],new_ten),
+                    Transform(sweep_e[0],Line(new_ten.get_center(),sweep_e[0].end)),
+                    Transform(sweep_e[1],Line(new_ten.get_center(),sweep_e[1].end)),
+                )
+                self.slide_break()
+                mps=VGroup(
+                    Line([-4.5,-0.5-.25,0],[-4.5,-0.5+.25,0]),
+                    Square(0.75*.75,color=WHITE).set_fill("#9999ff",opacity=1).move_to([-4.5,-0.5-.5,0]),
+                    Square(0.75*.75,color=WHITE).set_fill("#9999ff",opacity=1).move_to([-4.5,-0.5+.5,0]),
+                )
+                self.play(
+                    ReplacementTransform(new_ten,mps),
+                    Transform(sweep_e[0],Line(mps[1].get_right(),sweep_e[0].end)),
+                    Transform(sweep_e[1],Line(mps[2].get_right(),sweep_e[1].end)),
+                )
+                self.slide_break()
+
+
+                self.play(sweep_l.animate.shift(1.125*RIGHT))
+                self.slide_break()
+                self.play(
+                    Uncreate(sweep_e[0]),
+                    Transform(mps[1],Circle(0.25,color=WHITE).set_fill("#ff66ff",opacity=1).move_to(mps[1])),
+                    FadeOut(sweep_t[1],target_position=mps[1]),
+                    Transform(sweep_e[2],Line([-4.5,-0.5-.5,0],sweep_e[2].end)),
+                    Transform(sweep_e[3],Line([-4.5,-0.5-.5,0],sweep_e[3].end)),
+                )
+                self.slide_break()
+                oldmps=mps
+                mps=VGroup(
+                    Line([-4.5,-0.5-1,0],[-4.5,-0.5+1,0]),
+                    Square(0.75*.75,color=WHITE).set_fill("#9999ff",opacity=1).move_to([-4.5,-0.5-1,0]),
+                    Square(0.75*.75,color=WHITE).set_fill("#9999ff",opacity=1).move_to([-4.5,-0.5  ,0]),
+                    Square(0.75*.75,color=WHITE).set_fill("#9999ff",opacity=1).move_to([-4.5,-0.5+1,0]),
+                )
+                self.play(
+                    ReplacementTransform(oldmps[0],mps[0]),
+                    ReplacementTransform(oldmps[1],mps[1:3]),
+                    ReplacementTransform(oldmps[2],mps[3]),
+                    Transform(sweep_e[1],Line(mps[3].get_right(),sweep_e[1].end)),
+                    Transform(sweep_e[2],Line(mps[2].get_right(),sweep_e[2].end)),
+                    Transform(sweep_e[3],Line(mps[1].get_right(),sweep_e[3].end)),
+                )
+                self.slide_break()
+
+
+                self.play(sweep_l.animate.shift(1.125*RIGHT))
+                self.slide_break()
+                self.play(
+                    Uncreate(sweep_e[1]),
+                    Transform(mps[3],Circle(0.25,color=WHITE).set_fill("#ff66ff",opacity=1).move_to(mps[3])),
+                    FadeOut(sweep_t[2],target_position=mps[3]),
+                    Transform(sweep_e[4],Line(mps[3].get_center(),sweep_e[4].end)),
+                    Transform(sweep_e[5],Line(mps[3].get_center(),sweep_e[5].end)),
+                )
+                self.slide_break()
+                oldmps=mps
+                mps=VGroup(
+                    Line([-4.5,-0.5-1.5,0],[-4.5,-0.5+1.5,0]),
+                    Square(0.75*.75,color=WHITE).set_fill("#9999ff",opacity=1).move_to([-4.5,-0.5-1.5,0]),
+                    Square(0.75*.75,color=WHITE).set_fill("#9999ff",opacity=1).move_to([-4.5,-0.5-0.5,0]),
+                    Square(0.75*.75,color=WHITE).set_fill("#9999ff",opacity=1).move_to([-4.5,-0.5+0.5,0]),
+                    Square(0.75*.75,color=WHITE).set_fill("#9999ff",opacity=1).move_to([-4.5,-0.5+1.5,0]),
+                )
+                self.play(
+                    ReplacementTransform(oldmps[0],mps[0]),
+                    ReplacementTransform(oldmps[1],mps[1]),
+                    ReplacementTransform(oldmps[2],mps[2]),
+                    ReplacementTransform(oldmps[3],mps[3:5]),
+                    Transform(sweep_e[5],Line(mps[4].get_right(),sweep_e[5].end)),
+                    Transform(sweep_e[4],Line(mps[3].get_right(),sweep_e[4].end)),
+                    Transform(sweep_e[2],Line(mps[2].get_right(),sweep_e[2].end)),
+                    Transform(sweep_e[3],Line(mps[1].get_right(),sweep_e[3].end)),
+                )
+                self.slide_break()
+
+                self.play(sweep_l.animate.shift(1.125*RIGHT))
+                self.slide_break()
+                self.play(
+                    Uncreate(sweep_e[4]),
+                    Uncreate(sweep_e[2]),
+                    Transform(mps[2:4],Circle(0.25,color=WHITE).set_fill("#ff66ff",opacity=1).move_to(mps[3]).shift(0.5*DOWN)),
+                    FadeOut(sweep_t[3],target_position=mps[3]),
+                    Transform(sweep_e[6],Line(mps[3].get_center()+0.5*DOWN,sweep_e[6].end)),
+                    Transform(sweep_e[7],Line(mps[3].get_center()+0.5*DOWN,sweep_e[7].end)),
+                    Transform(sweep_e[8],Line(mps[3].get_center()+0.5*DOWN,sweep_e[8].end)),
+                )
+                self.slide_break()
+                oldmps=mps
+                mps=VGroup(
+                    Line([-4.5,-0.5-2,0],[-4.5,-0.5+2,0]),
+                    Square(0.75*.75,color=WHITE).set_fill("#9999ff",opacity=1).move_to([-4.5,-0.5-2,0]),
+                    Square(0.75*.75,color=WHITE).set_fill("#9999ff",opacity=1).move_to([-4.5,-0.5-1,0]),
+                    Square(0.75*.75,color=WHITE).set_fill("#9999ff",opacity=1).move_to([-4.5,-0.5  ,0]),
+                    Square(0.75*.75,color=WHITE).set_fill("#9999ff",opacity=1).move_to([-4.5,-0.5+1,0]),
+                    Square(0.75*.75,color=WHITE).set_fill("#9999ff",opacity=1).move_to([-4.5,-0.5+2,0]),
+                )
+                self.play(
+                    ReplacementTransform(oldmps[0],mps[0]),
+                    ReplacementTransform(oldmps[1],mps[1]),
+                    ReplacementTransform(oldmps[2],mps[2:5]),
+                    ReplacementTransform(oldmps[4],mps[5]),
+                    Transform(sweep_e[5],Line(mps[5].get_right(),sweep_e[5].end)),
+                    Transform(sweep_e[7],Line(mps[4].get_right(),sweep_e[7].end)),
+                    Transform(sweep_e[8],Line(mps[3].get_right(),sweep_e[8].end)),
+                    Transform(sweep_e[6],Line(mps[2].get_right(),sweep_e[6].end)),
+                    Transform(sweep_e[3],Line(mps[1].get_right(),sweep_e[3].end)),
+                )
+                self.slide_break()
+
+                self.play(sweep_l.animate.shift(1.125*RIGHT))
+                self.slide_break()
+                self.play(
+                    Uncreate(sweep_e[3]),
+                    Uncreate(sweep_e[6]),
+                    Transform(mps[1:3],Circle(0.25,color=WHITE).set_fill("#ff66ff",opacity=1).move_to(mps[1])),
+                    FadeOut(sweep_t[4],target_position=mps[1]),
+                    Transform(sweep_e[9],Line(mps[1].get_center(),sweep_e[9].end)),
+                )
+                self.slide_break()
+                oldmps=mps
+                mps=VGroup(
+                    Line([-4.5,-0.5-1.5,0],[-4.5,-0.5+1.5,0]),
+                    Square(0.75*.75,color=WHITE).set_fill("#9999ff",opacity=1).move_to([-4.5,-0.5-1.5,0]),
+                    Square(0.75*.75,color=WHITE).set_fill("#9999ff",opacity=1).move_to([-4.5,-0.5-0.5,0]),
+                    Square(0.75*.75,color=WHITE).set_fill("#9999ff",opacity=1).move_to([-4.5,-0.5+0.5,0]),
+                    Square(0.75*.75,color=WHITE).set_fill("#9999ff",opacity=1).move_to([-4.5,-0.5+1.5,0]),
+                )
+                self.play(
+                    ReplacementTransform(oldmps,mps),
+                    Transform(sweep_e[5],Line(mps[4].get_right(),sweep_e[5].end)),
+                    Transform(sweep_e[7],Line(mps[3].get_right(),sweep_e[7].end)),
+                    Transform(sweep_e[8],Line(mps[2].get_right(),sweep_e[8].end)),
+                    Transform(sweep_e[9],Line(mps[1].get_right(),sweep_e[9].end)),
+                )
+                self.slide_break()
+
+
+                self.play(sweep_l.animate.shift(1.125*RIGHT))
+                self.slide_break()
+                self.play(
+                    Uncreate(sweep_e[5]),
+                    Uncreate(sweep_e[7]),
+                    Transform(mps[3:5],Circle(0.25,color=WHITE).set_fill("#ff66ff",opacity=1).move_to(mps[4])),
+                    FadeOut(sweep_t[5],target_position=mps[4]),
+                    Transform(sweep_e[10],Line(mps[4].get_center(),sweep_e[10].end)),
+                )
+                self.slide_break()
+                oldmps=mps
+                mps=VGroup(
+                    Line([-4.5,-0.5-1,0],[-4.5,-0.5+1,0]),
+                    Square(0.75*.75,color=WHITE).set_fill("#9999ff",opacity=1).move_to([-4.5,-0.5-1,0]),
+                    Square(0.75*.75,color=WHITE).set_fill("#9999ff",opacity=1).move_to([-4.5,-0.5  ,0]),
+                    Square(0.75*.75,color=WHITE).set_fill("#9999ff",opacity=1).move_to([-4.5,-0.5+1,0]),
+                )
+                self.play(
+                    ReplacementTransform(oldmps[0],mps[0]),
+                    ReplacementTransform(oldmps[1],mps[1]),
+                    ReplacementTransform(oldmps[2],mps[2]),
+                    ReplacementTransform(oldmps[3],mps[3]),
+                    Transform(sweep_e[10],Line(mps[3].get_right(),sweep_e[10].end)),
+                    Transform(sweep_e[8],Line(mps[2].get_right(),sweep_e[8].end)),
+                    Transform(sweep_e[9],Line(mps[1].get_right(),sweep_e[9].end)),
+                )
+                self.slide_break()
+
+
+                self.play(sweep_l.animate.shift(1.125*RIGHT))
+                self.slide_break()
+                self.play(
+                    Uncreate(sweep_e[10]),
+                    Uncreate(sweep_e[8]),
+                    Uncreate(sweep_e[9]),
+                    Transform(mps,Circle(0.25,color=WHITE).set_fill("#ff66ff",opacity=1).move_to(mps[2])),
+                    FadeOut(sweep_t[6],target_position=mps[1]),
+                )
+                self.slide_break()
+
+                self.play(FadeOut(sweep_l,shift=0.5*RIGHT),mps.animate.move_to(DOWN/2))
+                self.slide_break()
+                self.remove(sweep_l)
+
+                self.play(FadeOut(mps))
+                self.slide_break()
 
             self.play(FadeIn(toc[0:tocindex]),FadeIn(toc[tocindex+1:]), ReplacementTransform(heading,toc[tocindex]))
 
-class Conclusion(SlideScene):
-    def construct(self):
-        tocindex=-1
-        heading = toc[tocindex].copy()
-        self.add(toc[0:tocindex],heading,toc[tocindex+1:],footer)
-        self.play(FadeOut(toc[0:tocindex]),FadeOut(toc[tocindex+1:]), heading.animate.move_to(ORIGIN).scale(1.5).to_corner(UP))
-        self.slide_break()
+class Extensions(SlideScene):
+        def construct(self):
+            tocindex=8
+            heading = toc[tocindex].copy()
+            self.add(toc[0:tocindex],heading,toc[tocindex+1:],footer)
+            self.play(FadeOut(toc[0:tocindex]),FadeOut(toc[tocindex+1:]), heading.animate.move_to(ORIGIN).scale(1.5).to_corner(UP))
+            self.slide_break()
 
-        temp = MyTexTemplate()
-        temp.add_to_preamble(r"\usepackage{marvosym} \usepackage{fontawesome}")
+            subsec1=False
+            subsec2=False
+            subsec3=False
+            subsec4=False
 
-        summary=MyTex("Summary of ","what ","is ","going on").scale(.75).move_to([0,2,0])
-        summary[1].set_color(YELLOW)
-        summary[3].set_color(RED)
+            subsec1=True
+            subsec2=True
+            subsec3=True
+            subsec4=True
 
-        arxiv=MyTex(r"\texttt{\bfseries arXiv:~????.?????}").next_to(summary,DOWN,buff=1).scale(.8)
-        package=MyTex(r"\texttt{\bfseries github:~chubbc/manim\_slides}").next_to(arxiv,DOWN,buff=.25).scale(.8)
+            if subsec1:
+                # Phen.
 
-        email=MyTex(r"\faEnvelope~~\texttt{me@christopherchubb.com}", tex_template=temp)
-        website=MyTex(r"\faLink~~\texttt{christopherchubb.com}", tex_template=temp)
-        twitter=MyTex(r"\faTwitter~~\texttt{@QuantumChubb}", tex_template=temp)
-        github=MyTex(r"\faGithub~~\texttt{chubbc}", tex_template=temp)
-        socials=VGroup(github,twitter,website,email).arrange(DOWN).scale(0.75).shift(2*DOWN)
+                rep_lines=VGroup()
+                rep_qubits=VGroup()
+                anc_qubits=VGroup()
+                anc_lines=VGroup()
 
-        self.play(Write(summary))
-        self.slide_break()
-        self.play(Write(arxiv),Write(package))
-        self.slide_break()
-        self.play(Write(socials))
-        self.slide_break()
+                d=8
+                t=5
+                for tt in range(t):
+                    rep_lines+=Line([0,tt,0],[d-1,tt,0]).set_opacity(0.5)
+                    rep_qubits+=VGroup()
+                    for x in range(d):
+                        rep_qubits[-1]+=Circle(radius=0.1,color=WHITE,fill_opacity=1).move_to([x,tt,0])
+                for tt in range(t-1):
+                    for x in range(d-1):
+                        # anc_qubits+=Circle(radius=0.1,color="#161c20",fill_opacity=1).move_to([x+0.5,tt+0.5,0])
+                        anc_lines+=Line([x+1,tt+1,0],[x,tt,0],stroke_opacity=0.5)
+                        anc_lines+=Line([x,tt+1,0],[x+1,tt,0],stroke_opacity=0.5)
+                        anc_qubits+=Circle(radius=0.1,color=WHITE,fill_color="#161c20",fill_opacity=1).move_to([x+0.5,tt+0.5,0])
+
+                check=VGroup(
+                    Line([3,2,0],[4,2,0],stroke_width=10),
+                    Circle(radius=0.15,fill_opacity=1).move_to([3,2,0]),
+                    Circle(radius=0.15,fill_opacity=1).move_to([4,2,0]),
+                    MyTex("X").move_to([3,2.5,0]),
+                    MyTex("X").move_to([4,2.5,0])
+                ).set_color(RED).shift(2*LEFT)
+
+                check2=VGroup(
+                    Line([3,2,0],[3.5,2.5,0],stroke_width=10,color=RED),
+                    Line([3.5,2.5,0],[4,2,0],stroke_width=10,color=RED),
+                    Line([3,2,0],[3.5,1.5,0],stroke_width=10,color=RED),
+                    Line([3.5,1.5,0],[4,2,0],stroke_width=10,color=RED),
+                    Circle(radius=0.15,fill_opacity=1,color=RED).move_to([3,2,0]),
+                    Circle(radius=0.15,fill_opacity=1,color=RED).move_to([4,2,0]),
+                    Circle(radius=0.15,stroke_color=RED,stroke_width=8,fill_color="#161c20",fill_opacity=1).move_to([3.5,2.5,0]),
+                    Circle(radius=0.15,stroke_color=RED,stroke_width=8,fill_color="#161c20",fill_opacity=1).move_to([3.5,1.5,0]),
+                    MyTex("X",color=RED).move_to([3,2.5,0]),
+                    MyTex("X",color=RED).move_to([4,2.5,0]),
+                    MyTex("X",color=RED).move_to([3.5,3,0]),
+                    MyTex("X",color=RED).move_to([3.5,2,0]),
+                ).shift(2*LEFT)
+
+                gauge=VGroup(
+                    Line([3,2,0],[3.5,2.5,0],stroke_width=10,color=BLUE),
+                    Line([3.5,2.5,0],[4,2,0],stroke_width=10,color=BLUE),
+                    Line([3,2,0],[3.5,1.5,0],stroke_width=10,color=BLUE),
+                    Line([3.5,1.5,0],[4,2,0],stroke_width=10,color=BLUE),
+                    Circle(radius=0.15,stroke_color=BLUE,stroke_width=8,fill_color="#161c20",fill_opacity=1).move_to([3,2,0]),
+                    Circle(radius=0.15,stroke_color=BLUE,stroke_width=8,fill_color="#161c20",fill_opacity=1).move_to([4,2,0]),
+                    Circle(radius=0.15,fill_opacity=1,color=BLUE).move_to([3.5,2.5,0]),
+                    Circle(radius=0.15,fill_opacity=1,color=BLUE).move_to([3.5,1.5,0]),
+                    MyTex("Z",color=BLUE).move_to([3,2.5,0]),
+                    MyTex("Z",color=BLUE).move_to([4,2.5,0]),
+                    MyTex("Z",color=BLUE).move_to([3.5,3,0]),
+                    MyTex("Z",color=BLUE).move_to([3.5,2,0]),
+                ).shift(0.5*RIGHT+0.5*UP)
+
+                VGroup(rep_lines,rep_qubits,anc_lines,anc_qubits,check,check2,gauge).move_to(ORIGIN)
+
+                self.play(Write(rep_lines[2]))
+                self.play(Write(rep_qubits[2]))
+                self.slide_break()
+
+                self.play(Write(check))
+                self.slide_break()
+
+                # self.play(FadeOut(check[3:]))
+                # self.slide_break()
+                # check=check[0:3]
+
+                self.play(
+                    FadeIn(VGroup(rep_lines[1],rep_qubits[1]),shift=UP),
+                    FadeIn(VGroup(rep_lines[3],rep_qubits[3]),shift=DOWN),
+                )
+                self.play(
+                    FadeIn(VGroup(rep_lines[0],rep_qubits[0]),shift=UP),
+                    FadeIn(VGroup(rep_lines[4],rep_qubits[4]),shift=DOWN),
+                )
+                self.slide_break()
+
+                self.play(Write(anc_qubits))
+                self.add_foreground_mobjects(anc_qubits)
+                self.slide_break()
+
+                self.play(FadeOut(rep_lines),FadeIn(anc_lines),FadeOut(check))
+                self.remove_foreground_mobjects(anc_qubits)
+                self.slide_break()
+                self.play(Write(check2))
+                self.slide_break()
+
+                self.play(Write(gauge))
+                self.slide_break()
+
+                self.play(
+                    FadeOut(anc_lines),
+                    FadeOut(check2),
+                    FadeOut(gauge),
+                    FadeOut(rep_qubits),
+                    FadeOut(anc_qubits),
+                )
+                self.slide_break()
+
+            if subsec2:
+                #
+                sc_lines=VGroup()
+                sc_qubits=VGroup()
+                anc_qubits=VGroup()
+                anc_lines=VGroup()
+
+                d=3
+                t=5
+                for tt in range(t):
+                    sc_lines+=VGroup()
+                    for i in range(d+1):
+                        sc_lines[-1]+=Line([i,0,tt],[i,d,tt],stroke_opacity=0.5)
+                        sc_lines[-1]+=Line([0,i,tt],[d,i,tt],stroke_opacity=0.5)
+
+                for x in range(d+1):
+                    for y in range(d+1):
+                        anc_lines+=Line([x,y,0],[x,y,t-1],stroke_opacity=0.25)
+
+                check2=VGroup(
+                    Line(LEFT,RIGHT,stroke_width=10,color=RED),
+                    Line(DOWN,UP,stroke_width=10,color=RED),
+                    Line(IN,OUT,stroke_width=10,color=RED),
+                ).shift(UP+RIGHT+2*OUT)
+
+                gauge=VGroup(
+                    Line(ORIGIN,RIGHT,stroke_width=10,color=RED),
+                    Line(RIGHT+IN,IN,stroke_width=10,color=RED),
+                    Line(RIGHT,RIGHT+IN,stroke_width=10,color=RED),
+                    Line(ORIGIN,IN,stroke_width=10,color=RED),
+                ).set_color(BLUE).shift(2*UP+2*RIGHT+3*OUT)
+
+                gauge2=VGroup(
+                    Line(ORIGIN,RIGHT,stroke_width=10,color=RED),
+                    Line(RIGHT,RIGHT+UP,stroke_width=10,color=RED),
+                    Line(RIGHT+UP,UP,stroke_width=10,color=RED),
+                    Line(ORIGIN,UP,stroke_width=10,color=RED),
+                ).set_color(BLUE).shift(2*UP+2*RIGHT+1*OUT)
+
+
+                VGroup(check2,sc_lines,anc_lines,gauge,gauge2).move_to(ORIGIN)
+                self.play(Write(sc_lines[2]),Write(check2[0:2]))
+                self.slide_break()
+
+                self.play(VGroup(sc_lines[2],sc_qubits,check2[0:2]).animate.rotate(0.3,axis=IN).rotate(1.35,axis=LEFT))
+
+                VGroup(sc_lines[0:2],sc_lines[3:],anc_qubits,anc_lines,check2[2],gauge,gauge2).rotate(0.3,axis=IN).rotate(1.35,axis=LEFT)
+                self.slide_break()
+
+                self.play(
+                    FadeIn(sc_lines[1],shift=UP),
+                    FadeIn(sc_lines[3],shift=DOWN)
+                )
+                self.play(
+                    FadeIn(sc_lines[0],shift=UP),
+                    FadeIn(sc_lines[4],shift=DOWN)
+                )
+                self.slide_break()
+
+                self.play(FadeIn(anc_lines))
+                self.slide_break()
+                self.play(FadeOut(anc_lines))
+                self.slide_break()
+
+                self.play(Write(check2[2]))
+                self.slide_break()
+
+                self.play(Write(gauge2))
+                self.slide_break()
+
+                self.play(Write(gauge[0:2]))
+                self.slide_break()
+
+                self.play(Write(gauge[2:]))
+                self.slide_break()
+
+                self.play(FadeOut(Group(gauge,gauge2,check2,sc_lines)))
+                self.slide_break()
+
+            if subsec3:
+                # Correlated noise
+
+                corr_text=MyTex("What about correlated noise models?")
+                self.play(Write(corr_text))
+                self.slide_break()
+
+                self.play(corr_text.animate.shift(1.5*UP))
+                self.slide_break()
+
+                # err=MyTex(r"$\Pr\left(\bigo\right)$What about correlated noise models?")
+
+                paulitoprob=MathTex("\\text{Error}","\\to","\\text{Probability}").move_to(0.5*DOWN)
+                paulitoprob[0].set_color(YELLOW)
+                paulitoprob[2].set_color(RED)
+                self.play(FadeIn(paulitoprob[0]))
+                self.slide_break()
+                self.play(TransformFromCopy(paulitoprob[0],paulitoprob[2]),FadeIn(paulitoprob[1]))
+                self.slide_break()
+
+                pauli=MathTex("{\\bigotimes}_{i}P_i").next_to(paulitoprob[1],LEFT).set_color(YELLOW)
+                iid=MathTex("{\\prod}_{i}p_i(","P_i",")").next_to(paulitoprob[1],RIGHT)
+                iid[0].set_color(RED)
+                iid[1].set_color(YELLOW)
+                iid[2].set_color(RED)
+                self.play(
+                    Transform(paulitoprob[0],pauli),
+                    Transform(paulitoprob[2],iid)
+                )
+                self.slide_break()
+
+                corr=MathTex("{\\prod}_{j}\phi_j(","P_{R_j}",")").next_to(paulitoprob[1],RIGHT)
+                corr[0].set_color(RED)
+                corr[1].set_color(YELLOW)
+                corr[2].set_color(RED)
+                self.play(
+                    Transform(paulitoprob[2],corr)
+                )
+                self.slide_break()
+
+                # self.remove(iid,corr,pauli)
+                # self.play(corr_text.animate.shift(UP),paulitoprob.animate.shift(2*UP))
+                self.play(FadeOut(corr_text),FadeOut(paulitoprob))
+                self.slide_break()
+
+                corr_example=VGroup(VGroup(),VGroup(),VGroup())
+                for i in range(5):
+                    corr_example[0]+=Circle(radius=0.1,color=WHITE,fill_opacity=1).move_to(i*RIGHT)
+                for i in range(5):
+                    corr_example[0]+=MyTex(str(i+1)).move_to(i*RIGHT+0.75*UP)
+                corr_example[1]+=Circle(radius=0.375,color=RED)
+                corr_example[1]+=MyTex("$p_1$").move_to(0.75*DOWN).set_color(RED)
+
+                corr_example[2]+=Ellipse(width=1.5,height=.75,color=RED).move_to(2.5*RIGHT)
+                corr_example[2]+=MyTex("$\phi_{34}$").move_to(2.5*RIGHT+0.75*DOWN).set_color(RED)
+
+                corr_example.move_to(ORIGIN)
+
+                self.play(FadeIn(corr_example[0]))
+                self.slide_break()
+
+                self.play(Write(corr_example[1]))
+                self.slide_break()
+
+                corr_example2=VGroup(
+                    MyTex(r"\text{iid: }","p_1(","E_1",r")\,p_2(","E_2",r")\,p_3(","E_3",r")\,p_4(","E_4",r")\,p_5(","E_5",")",tex_environment="align*"),
+                    MyTex(r"\text{corr: }",r"\phi_{1,2}(","E_1,E_2",r")\,\phi_{2,3}(","E_2,E_3",r")\,\phi_{3,4}(","E_3,E_4",r")\,\phi_{4,5}(","E_4,E_5",")",tex_environment="align*")
+                ).arrange(DOWN,aligned_edge=LEFT).move_to(1.5*DOWN)
+                corr_example2[0][1].set_color(RED)
+                corr_example2[0][3].set_color(RED)
+                corr_example2[0][5].set_color(RED)
+                corr_example2[0][7].set_color(RED)
+                corr_example2[0][9].set_color(RED)
+                corr_example2[0][11].set_color(RED)
+                corr_example2[0][2].set_color(YELLOW)
+                corr_example2[0][4].set_color(YELLOW)
+                corr_example2[0][6].set_color(YELLOW)
+                corr_example2[0][8].set_color(YELLOW)
+                corr_example2[0][10].set_color(YELLOW)
+
+                corr_example2[1][1].set_color(RED)
+                corr_example2[1][3].set_color(RED)
+                corr_example2[1][5].set_color(RED)
+                corr_example2[1][7].set_color(RED)
+                corr_example2[1][9].set_color(RED)
+                corr_example2[1][2].set_color(YELLOW)
+                corr_example2[1][4].set_color(YELLOW)
+                corr_example2[1][6].set_color(YELLOW)
+                corr_example2[1][8].set_color(YELLOW)
+
+                self.play(corr_example[0:2].animate.shift(UP))
+                corr_example[2].shift(UP)
+                self.play(Write(corr_example2[0]))
+                self.slide_break()
+
+                self.play(Write(corr_example[2]))
+                self.slide_break()
+
+                self.play(Write(corr_example2[1]))
+                self.slide_break()
+
+                self.play(FadeOut(corr_example),FadeOut(corr_example2))
+                self.slide_break()
+
+                ham = MyTex(
+                    r"H_E(\vec s):=-",r"\sum_{i}",r"\sum_{\sigma\in\mathcal P_{i\vphantom{R}}}",r"J_i",r"(\sigma)\comm{\sigma}{E}\prod_{ k:\comm{\sigma}{S_k}=-1 } s_k",
+                    tex_environment="align*"
+                )
+
+                self.play(Write(ham))
+                self.slide_break()
+
+                self.play(
+                    ham[1:4].animate.set_color(YELLOW),
+                )
+                self.slide_break()
+
+                oldham=ham
+                ham = MyTex(
+                    r"H_E(\vec s):=-",r"\sum_{j}",r"\sum_{\sigma\in\mathcal P_{R_j}}",r"J_j",r"(\sigma)\comm{\sigma}{E}\prod_{ k:\comm{\sigma}{S_k}=-1 } s_k",
+                    tex_environment="align*"
+                ).move_to(oldham)
+                ham[1:4].set_color(YELLOW),
+                self.play(
+                    ReplacementTransform(oldham[0],ham[0]),
+                    ReplacementTransform(oldham[1],ham[1]),
+                    ReplacementTransform(oldham[2],ham[2]),
+                    ReplacementTransform(oldham[3],ham[3]),
+                    ReplacementTransform(oldham[4],ham[4]),
+                )
+                self.slide_break()
+
+                nish=MyTex(
+                    r"\beta ",
+                    r"J_j",
+                    r"(\sigma)",
+                    r"=",
+                    r"\frac{1}{\left|\mathcal P_{R_j}\right|}",
+                    r"\sum_{\tau\in\mathcal P_{R_j}}",
+                    r"\log \phi_j",
+                    r"(\tau)",
+                    r"\comm{\sigma}{\tau^{-1}}",tex_environment="align*")
+                nish.move_to(1*DOWN)
+
+                self.play(ham.animate.shift(1*UP).set_color(WHITE))
+                self.play(Write(nish))
+                self.slide_break()
+
+                newnish=MyTex(
+                    r"\beta ",
+                    r"J",
+                    r"(\sigma)",
+                    r"=",
+                    r"\frac{1}{\left|\mathcal P\right|}",
+                    r"\sum_{\tau\in\mathcal P}",
+                    r"\log \Pr",
+                    r"(\tau)",
+                    r"\comm{\sigma}{\tau^{-1}}",tex_environment="align*").move_to(nish)
+                self.play(Transform(nish,newnish))
+                self.slide_break()
+
+                self.play(FadeOut(nish),FadeOut(ham))
+                self.slide_break()
+
+            if subsec4:
+                lines=VGroup()
+                qubits=VGroup()
+                spins=VGroup()
+                X=7
+                Y=4
+                for x in range(X):
+                    lines+=Line([x,-0.75,0],[x,Y-.25,0],stroke_opacity=0.25)
+                for y in range(Y):
+                    lines+=Line([-.75,y,0],[X-.25,y,0],stroke_opacity=0.25)
+
+                for x in range(X):
+                    for y in range(Y):
+                        spins+=Circle(radius=0.1,stroke_color=BLUE,fill_opacity=1,fill_color=config.background_color).move_to([x,y,0])
+                        qubits+=Circle(radius=0.05,fill_opacity=1).move_to([x-0.5,y,0])
+                        qubits+=Circle(radius=0.05,fill_opacity=1).move_to([x+0.5,y,0])
+                        qubits+=Circle(radius=0.05,fill_opacity=1).move_to([x,y-0.5,0])
+                        qubits+=Circle(radius=0.05,fill_opacity=1).move_to([x,y+0.5,0])
+
+                iid=VGroup()
+                iid+=Circle(radius=0.1,color=YELLOW,fill_opacity=1).move_to(RIGHT/2)
+                iid+=Line(ORIGIN,RIGHT,color=BLUE,stroke_width=10)
+                iid+=Circle(radius=0.15,stroke_width=10,stroke_color=BLUE,fill_opacity=1,fill_color=config.background_color).move_to(ORIGIN)
+                iid+=Circle(radius=0.15,stroke_width=10,stroke_color=BLUE,fill_opacity=1,fill_color=config.background_color).move_to(RIGHT)
+                iid+=Circle(radius=0.1,color=YELLOW,fill_opacity=1).move_to(RIGHT/2)
+                iid.shift(2*UP)
+
+                corr1=VGroup(
+                    Circle(radius=0.1,color=YELLOW,fill_opacity=1).move_to(RIGHT/2),
+                    Circle(radius=0.1,color=YELLOW,fill_opacity=1).move_to(RIGHT+UP/2),
+                    Line(ORIGIN,RIGHT,color=BLUE,stroke_width=10),
+                    Line(RIGHT+UP,RIGHT,color=BLUE,stroke_width=10),
+                    Line(RIGHT+UP,ORIGIN,color=BLUE,stroke_width=10),
+                    Circle(radius=0.15,stroke_width=10,stroke_color=BLUE,fill_opacity=1,fill_color=config.background_color).move_to(ORIGIN),
+                    Circle(radius=0.15,stroke_width=10,stroke_color=BLUE,fill_opacity=1,fill_color=config.background_color).move_to(RIGHT),
+                    Circle(radius=0.15,stroke_width=10,stroke_color=BLUE,fill_opacity=1,fill_color=config.background_color).move_to(RIGHT+UP),
+                    Circle(radius=0.1,color=YELLOW,fill_opacity=1).move_to(RIGHT/2),
+                    Circle(radius=0.1,color=YELLOW,fill_opacity=1).move_to(RIGHT+UP/2),
+                ).shift(RIGHT)
+
+                corr2=VGroup(
+                    Circle(radius=0.1,color=YELLOW,fill_opacity=1).move_to(DOWN/2),
+                    Circle(radius=0.1,color=YELLOW,fill_opacity=1).move_to(UP/2),
+                    Line(UP,DOWN,color=BLUE,stroke_width=10),
+                    Circle(radius=0.15,stroke_width=10,stroke_color=BLUE,fill_opacity=1,fill_color=config.background_color).move_to(ORIGIN),
+                    Circle(radius=0.15,stroke_width=10,stroke_color=BLUE,fill_opacity=1,fill_color=config.background_color).move_to(UP),
+                    Circle(radius=0.15,stroke_width=10,stroke_color=BLUE,fill_opacity=1,fill_color=config.background_color).move_to(DOWN),
+                    Circle(radius=0.1,color=YELLOW,fill_opacity=1).move_to(DOWN/2),
+                    Circle(radius=0.1,color=YELLOW,fill_opacity=1).move_to(UP/2),
+                ).shift(3*RIGHT+2*UP)
+
+                corr3=VGroup(
+                    Circle(radius=0.1,color=YELLOW,fill_opacity=1).move_to(RIGHT/2),
+                    Circle(radius=0.1,color=YELLOW,fill_opacity=1).move_to(RIGHT/2+UP),
+                    Line(ORIGIN,RIGHT,color=BLUE,stroke_width=10),
+                    Line(ORIGIN,UP,color=BLUE,stroke_width=10),
+                    Line(UP+RIGHT,RIGHT,color=BLUE,stroke_width=10),
+                    Line(UP+RIGHT,UP,color=BLUE,stroke_width=10),
+                    Circle(radius=0.15,stroke_width=10,stroke_color=BLUE,fill_opacity=1,fill_color=config.background_color).move_to(ORIGIN),
+                    Circle(radius=0.15,stroke_width=10,stroke_color=BLUE,fill_opacity=1,fill_color=config.background_color).move_to(UP),
+                    Circle(radius=0.15,stroke_width=10,stroke_color=BLUE,fill_opacity=1,fill_color=config.background_color).move_to(RIGHT),
+                    Circle(radius=0.15,stroke_width=10,stroke_color=BLUE,fill_opacity=1,fill_color=config.background_color).move_to(UP+RIGHT),
+                    Circle(radius=0.1,color=YELLOW,fill_opacity=1).move_to(RIGHT/2),
+                    Circle(radius=0.1,color=YELLOW,fill_opacity=1).move_to(RIGHT/2+UP),
+                ).shift(5*RIGHT+UP)
+
+                qubits.set_color(WHITE)
+                cover=Rectangle(width=5,height=5,color=config.background_color,fill_opacity=1).shift(1.25*LEFT)#.next_to(LEFT,3*RIGHT+3*UP)
+                VGroup(lines,qubits,spins,iid,corr1,corr2,corr3).move_to(ORIGIN)
+                self.play(Write(VGroup(lines,qubits,spins)))
+                self.slide_break()
+
+                self.play(FadeIn(iid[0]))
+                self.slide_break()
+                self.play(FadeIn(iid[1:]))
+                self.slide_break()
+
+                self.play(FadeIn(corr1[0:2]))
+                self.slide_break()
+                self.play(FadeIn(corr1[2:]))
+                self.slide_break()
+
+                self.play(FadeIn(corr2[0:2]))
+                self.slide_break()
+                self.play(FadeIn(corr2[2:]))
+                self.slide_break()
+
+                self.play(FadeIn(corr3[0:2]))
+                self.slide_break()
+                self.play(FadeIn(corr3[2:]))
+                self.slide_break()
+
+                self.play(FadeIn(cover))
+                self.remove(*corr1,*corr2,*iid)
+                self.play(VGroup(lines,qubits,spins,cover,corr3).animate.shift(2*RIGHT))
+                self.slide_break()
+
+
+                corr_form=MyTex(r"\eta:=\frac{\Pr(X_e|X_{e'})}{\Pr(X_e|I_{e'})}",tex_environment="align*").move_to(UP+RIGHT).scale(.8)
+                corr_mc=ImageMobject("corr_mc.png").scale(1).move_to(4*LEFT)
+                corr_th=MyTex(r"\eta=1:&~~~10.917(3)\%\\",r"\eta=2:&~~~10.04(6)\%",tex_environment="align*").move_to(RIGHT+DOWN).scale(.8)
+                self.play(FadeIn(corr_mc,shift=RIGHT))
+                self.play(Write(VGroup(corr_form,corr_th)))
+                self.slide_break()
+
+                cover2=Rectangle(fill_color=config.background_color,fill_opacity=1,stroke_color=config.background_color,width=20,height=6)
+                self.play(FadeIn(cover2))
+                self.remove(
+                    lines,qubits,spins,corr3,corr_mc,corr_form,corr_th,cover2,cover
+                )
+
+            self.play(FadeIn(toc[0:tocindex]),FadeIn(toc[tocindex+1:]), ReplacementTransform(heading,toc[tocindex]))
+
+# class Conclusion(SlideScene):
+#     def construct(self):
+#         tocindex=-1
+#         heading = toc[tocindex].copy()
+#         self.add(toc[0:tocindex],heading,toc[tocindex+1:],footer)
+#         self.play(FadeOut(toc[0:tocindex]),FadeOut(toc[tocindex+1:]), heading.animate.move_to(ORIGIN).scale(1.5).to_corner(UP))
+#         self.slide_break()
+#
+#         temp = MyTexTemplate()
+#         temp.add_to_preamble(r"\usepackage{marvosym} \usepackage{fontawesome}")
+#
+#         summary=MyTex("Summary of ","what ","is ","going on").scale(.75).move_to([0,2,0])
+#         summary[1].set_color(YELLOW)
+#         summary[3].set_color(RED)
+#
+#         arxiv=MyTex(r"\texttt{\bfseries arXiv:~????.?????}").next_to(summary,DOWN,buff=1).scale(.8)
+#         package=MyTex(r"\texttt{\bfseries github:~chubbc/manim\_slides}").next_to(arxiv,DOWN,buff=.25).scale(.8)
+#
+#         email=MyTex(r"\faEnvelope~~\texttt{me@christopherchubb.com}", tex_template=temp)
+#         website=MyTex(r"\faLink~~\texttt{christopherchubb.com}", tex_template=temp)
+#         twitter=MyTex(r"\faTwitter~~\texttt{@QuantumChubb}", tex_template=temp)
+#         github=MyTex(r"\faGithub~~\texttt{chubbc}", tex_template=temp)
+#         socials=VGroup(github,twitter,website,email).arrange(DOWN).scale(0.75).shift(2*DOWN)
+#
+#         self.play(Write(summary))
+#         self.slide_break()
+#         self.play(Write(arxiv),Write(package))
+#         self.slide_break()
+#         self.play(Write(socials))
+#         self.slide_break()
