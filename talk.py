@@ -1,4 +1,5 @@
 from manim_slide import *
+from manim_voiceover import VoiceoverScene
 import math
 
 config.background_color = "#161c20"
@@ -8,29 +9,31 @@ temp.add_to_preamble(r"\usepackage{stmaryrd,mathtools}")
 temp.add_to_preamble(r"\newcommand{\comm}[2]{\left\llbracket#1,#2\right\rrbracket}")
 temp.add_to_document(r"\fontfamily{lmss}\selectfont")
 # temp.add_to_document(r"\fontfamily{phv}\selectfont")
+# temp = MyTexTemplate()
+temp.add_to_preamble(r"\usepackage{marvosym} \usepackage{fontawesome}")
 
 def MyTex(*x,tex_environment="center",tex_template="",color=WHITE,scale=1.0):
     return Tex(*x,
         tex_template=temp,
         tex_environment=tex_environment,
-        color=color,
-        scale=scale
-    )
+        color=color
+    ).scale(scale)
 
 toc=Group(
-    MyTex(r"\bfseries Lecture 1").scale(1.2),
-    MyTex(r"Basics of decoding"),
-    MyTex(r"Surface code"),
-    MyTex(r"Stat mech mapping"),
-    MyTex(r"Examples"),
-    MyTex(r"\bfseries Lecture 2").scale(1.2),
-    MyTex(r"Stat mech decoding"),
-    MyTex(r"Tensor network decoding"),
-    MyTex(r"Extensions"),
-).scale(0.9).arrange(DOWN,aligned_edge=LEFT,buff=0.25).move_to(ORIGIN)
-toc[0:5].shift(0.75*UP)
-toc[0].set_x(0).shift(0.25*UP)
-toc[5].set_x(0).shift(0.25*UP)
+    # MyTex(r"\bfseries Lecture 1").scale(1.2),
+    MyTex(r"1. Basics of decoding"),
+    MyTex(r"2. Surface code"),
+    MyTex(r"3. Stat mech mapping"),
+    MyTex(r"4. Examples"),
+    # MyTex(r"\bfseries Lecture 2").scale(1.2),
+    MyTex(r"5. Stat mech decoding"),
+    MyTex(r"6. Tensor network decoding"),
+    MyTex(r"7. Extensions"),
+    MyTex(r"8. Future directions"),
+).scale(0.9).arrange(DOWN,buff=0.375,aligned_edge=LEFT).move_to(ORIGIN)
+# toc[0:5].shift(0.75*UP)
+# toc[0].set_x(0).shift(0.25*UP)
+# toc[5].set_x(0).shift(0.25*UP)
 
 # footer=VGroup(
 #     MyTex(r"$\texttt{christopherchubb.com/IBM2022}$"),
@@ -39,11 +42,10 @@ toc[5].set_x(0).shift(0.25*UP)
 # ).arrange(DOWN).scale(1/2).to_corner(DOWN).set_opacity(.5).shift(0.375*DOWN)
 
 footer=VGroup(
-    MyTex(r"$\texttt{github.com/chubbc/IBM2022}$"),
-    MyTex(r"$\texttt{christopherchubb.com/IBM2022}$"),
-    MyTex(r"$\texttt{@QuantumChubb}$"),
-).arrange(RIGHT,buff=2).scale(1/2).to_corner(DOWN).set_opacity(.5).shift(0.375*DOWN)
-
+    MyTex(r"\faGithubSquare~$\texttt{chubbc/YITP2022}$"),
+    MyTex(r"\faExternalLinkSquare~$\texttt{christopherchubb.com/YITP2022}$"),
+    MyTex(r"\faTwitterSquare~\faYoutubePlay~$\texttt{@QuantumChubb}$"),
+).arrange(RIGHT,buff=3).to_corner(DOWN).shift(0.5*DOWN).scale(1/2).set_opacity(.5)
 
 if True:
     big=True; width_thin=2.5; width_medium=5; width_thick=5
@@ -122,107 +124,83 @@ if True:
                     R[-2].set_color(RED).set_stroke(width=width_thin),
                     R[-1].set_color(RED).set_stroke(width=width_thin))
 
-
-
 class Title(SlideScene):
     def construct(self):
-        title = MyTex(r"\bfseries\textsc{QEC Decoding}").scale(1.25).shift(2.5*UP)
-        arxiv = MyTex(r"\bfseries{Decoding and statistical mechanics}}").scale(.75).shift(1.5*UP)
+
+        title = MyTex(r"\bfseries\textsc{Error correction and statistical mechanics}").scale(1.25).shift(2.5*UP)
+        loc = MyTex(r"YITP 2023").scale(.75).shift(1.25*UP)
         name = MyTex("Christopher T.\ Chubb")
         ethz=SVGMobject("ethz_logo_white.svg").scale(1/3).move_to(1.5*DOWN)
-        self.add(name,title,arxiv,ethz,footer)
+        footer_big=VGroup(
+            MyTex(r"\faGithubSquare~$\texttt{chubbc/YITP2022}$"),
+            MyTex(r"\faExternalLinkSquare~$\texttt{christopherchubb.com/YITP2022}$"),
+            MyTex(r"\faTwitterSquare~\faYoutubePlay~$\texttt{@QuantumChubb}$"),
+        ).arrange(RIGHT,buff=.5).to_corner(DOWN).shift(0.25*UP).scale(3/4)
+
+        self.add(name,title,loc,ethz,footer_big)
         self.slide_break()
 
-        self.play(Unwrite(title),Unwrite(arxiv),Unwrite(name),Unwrite(ethz))
+        self.play(Unwrite(title),Unwrite(loc),Unwrite(name),Unwrite(ethz))
+        # self.wait()
+        self.play(ReplacementTransform(footer_big,footer))
         self.wait()
         self.play(FadeIn(toc))
         self.slide_break()
 
         self.play(
-            toc[1].animate.scale(1.2).set_color(YELLOW).shift(0.1*toc[1].width*RIGHT)
+            toc[0].animate.scale(1.2).set_color(YELLOW).shift(0.1*toc[0].width*RIGHT)
         )
         self.slide_break()
-
+        for i in range(0,len(toc)-1):
+            self.play(
+                toc[i].animate.scale(1/1.2).set_color(WHITE).shift(0.1*toc[i].width*LEFT/1.2),
+                toc[i+1].animate.scale(1.2).set_color(YELLOW).shift(0.1*toc[i+1].width*RIGHT)
+            )
+            self.slide_break()
         self.play(
-            toc[1].animate.scale(1/1.2).set_color(WHITE).shift(0.1*toc[1].width*LEFT/1.2),
-            toc[2].animate.scale(1.2).set_color(YELLOW).shift(0.1*toc[2].width*RIGHT)
-        )
-        self.slide_break()
-
-        self.play(
-            toc[2].animate.scale(1/1.2).set_color(WHITE).shift(0.1*toc[2].width*LEFT/1.2),
-            toc[3].animate.scale(1.2).set_color(YELLOW).shift(0.1*toc[3].width*RIGHT)
-        )
-        self.slide_break()
-
-        self.play(
-            toc[3].animate.scale(1/1.2).set_color(WHITE).shift(0.1*toc[3].width*LEFT/1.2),
-            toc[4].animate.scale(1.2).set_color(YELLOW).shift(0.1*toc[5].width*RIGHT)
-        )
-        self.slide_break()
-
-        self.play(
-            toc[4].animate.scale(1/1.2).set_color(WHITE).shift(0.1*toc[5].width*LEFT/1.2),
-            toc[6].animate.scale(1.2).set_color(YELLOW).shift(0.1*toc[6].width*RIGHT)
-        )
-        self.slide_break()
-
-        self.play(
-            toc[6].animate.scale(1/1.2).set_color(WHITE).shift(0.1*toc[6].width*LEFT/1.2),
-            toc[7].animate.scale(1.2).set_color(YELLOW).shift(0.1*toc[7].width*RIGHT)
-        )
-        self.slide_break()
-
-        self.play(
-            toc[7].animate.scale(1/1.2).set_color(WHITE).shift(0.1*toc[7].width*LEFT/1.2),
-            toc[8].animate.scale(1.2).set_color(YELLOW).shift(0.1*toc[8].width*RIGHT)
-        )
-        self.slide_break()
-
-        self.play(
-            toc[8].animate.scale(1/1.2).set_color(WHITE).shift(0.1*toc[8].width*LEFT/1.2),
+            toc[-1].animate.scale(1/1.2).set_color(WHITE).shift(0.1*toc[-1].width*LEFT/1.2),
         )
 
 class Basics(SlideScene):
     def construct(self):
-        tocindex=1
+        tocindex=0
         heading = toc[tocindex].copy()
         self.add(toc[0:tocindex],heading,toc[tocindex+1:],footer)
         self.play(FadeOut(toc[0:tocindex]),FadeOut(toc[tocindex+1:]), heading.animate.move_to(ORIGIN).scale(1.5).to_corner(UP))
         self.slide_break()
 
 
-        p0=MyTex("Passive").move_to(3*LEFT+2*UP)
-        p1=ImageMobject("./bike.jpg",height=2).move_to(3*LEFT+DOWN/2)
-        p2=ImageMobject("./magnetic.jpg",height=2).move_to(3*LEFT+DOWN/2)
-        p1.height=3
-        p2.height=3
-
-        a0=MyTex("Active").move_to(3*RIGHT+2*UP)
-        a1=ImageMobject("./segway.jpg",height=2).move_to(3*RIGHT+DOWN/2)
-        a2=ImageMobject("./qec.png",height=2).move_to(3*RIGHT+DOWN/2)
-        a1.height=3
-        a2.height=3
-        a2.width=6
-
-        self.play(FadeIn(p0),FadeIn(a0))
-        self.slide_break()
-
-        self.play(FadeIn(p1))
-        self.slide_break()
-
-        self.play(FadeIn(a1))
-        self.slide_break()
-
-        self.play(FadeOut(p1))
-        self.play(FadeIn(p2))
-        self.slide_break()
-
-        self.play(FadeOut(a1))
-        self.play(FadeIn(a2))
-        self.slide_break()
-
-        self.play(FadeOut(p0),FadeOut(p2),FadeOut(a0),FadeOut(a2))
+        # p0=MyTex("Passive").move_to(3*LEFT+2*UP)
+        # p1=ImageMobject("./bike.jpg",height=2).move_to(3*LEFT+DOWN/2)
+        # p2=ImageMobject("./magnetic.jpg",height=2).move_to(3*LEFT+DOWN/2)
+        # p1.height=3
+        # p2.height=3
+        #
+        # a0=MyTex("Active").move_to(3*RIGHT+2*UP)
+        # a1=ImageMobject("./segway.jpg",height=2).move_to(3*RIGHT+DOWN/2)
+        # a2=ImageMobject("./qec.png",height=2).move_to(3*RIGHT+DOWN/2)
+        # a1.height=3
+        # a2.height=3
+        # a2.width=6
+        #
+        # self.play(FadeIn(p0),FadeIn(a0))
+        # self.slide_break()
+        #
+        # self.play(FadeIn(p1))
+        # self.slide_break()
+        #
+        # self.play(FadeIn(a1))
+        # self.slide_break()
+        #
+        # self.play(FadeOut(p1))
+        # self.play(FadeIn(p2))
+        # self.slide_break()
+        #
+        # self.play(FadeOut(a1))
+        # self.play(FadeIn(a2))
+        # self.slide_break()
+        #
+        # self.play(FadeOut(p0),FadeOut(p2),FadeOut(a0),FadeOut(a2))
 
         heading_maxprob = MyTex("Which is the most likely ", "error","?")
         heading_maxprob[1].set_color(YELLOW)
@@ -440,7 +418,7 @@ class Basics(SlideScene):
 
 class SurfaceCode(SlideScene):
         def construct(self):
-            tocindex=2
+            tocindex=1
             heading = toc[tocindex].copy()
             self.add(toc[0:tocindex],heading,toc[tocindex+1:],footer)
             self.play(FadeOut(toc[0:tocindex]),FadeOut(toc[tocindex+1:]), heading.animate.move_to(ORIGIN).scale(1.5).to_corner(UP))
@@ -795,7 +773,7 @@ class SurfaceCode(SlideScene):
 
 class StatMech(SlideScene):
         def construct(self):
-            tocindex=3
+            tocindex=2
             heading = toc[tocindex].copy()
             self.add(toc[0:tocindex],heading,toc[tocindex+1:],footer)
             self.play(FadeOut(toc[0:tocindex]),FadeOut(toc[tocindex+1:]), heading.animate.move_to(ORIGIN).scale(1.5).to_corner(UP))
@@ -806,8 +784,6 @@ class StatMech(SlideScene):
             subsec3=False
             subsec4=False
             subsec5=False
-            subsec6=False
-            subsec7=False
 
             subsec1=True
             subsec2=True
@@ -983,13 +959,20 @@ class StatMech(SlideScene):
                 self.slide_break()
 
             if subsec3:
-                comm=MyTex(r"\comm{A}{B}:=\begin{dcases} +1 &:A,B\text{ commute},\\-1&:\text{otherwise}.\end{dcases}",tex_environment="align*")
-                comm2=MyTex(r"AB=\comm{A}{B}BA",tex_environment="align*")
+                comm=MyTex(r"\comm{A}{B}",r":=\begin{dcases} +1 &:A,B\text{ commute},\\-1&:\text{otherwise}.\end{dcases}",tex_environment="align*")
+                comm2=MyTex(r"AB=",r"\comm{A}{B}",r"BA",tex_environment="align*")
                 self.play(FadeIn(comm))
                 self.slide_break()
-                self.play(Transform(comm,comm2))
+                self.play(
+                    ReplacementTransform(comm[0],comm2[1]),
+                    FadeOut(comm[1]),
+                )
+                self.play(
+                    FadeIn(comm2[0]),
+                    FadeIn(comm2[2])
+                )
                 self.slide_break()
-                self.play(FadeOut(comm))
+                self.play(FadeOut(comm2))
                 self.slide_break()
 
             if subsec4:
@@ -1109,9 +1092,9 @@ class StatMech(SlideScene):
                 self.play(points[0][1].animate.set_color(WHITE),ham[6].animate.set_color(WHITE).scale(1/1.2),ham[9:].animate.set_color(WHITE).scale(1/1.2))
                 self.slide_break()
 
-                self.play(Write(points[1][1]),ham[8].animate.set_color(YELLOW).scale(1.2))
+                self.play(Write(points[1][1]),ham[8].animate.set_color(YELLOW).scale(1.2).shift(0.1*RIGHT))
                 self.slide_break()
-                self.play(points[1][1].animate.set_color(WHITE),ham[8].animate.set_color(WHITE).scale(1/1.2))
+                self.play(points[1][1].animate.set_color(WHITE),ham[8].animate.set_color(WHITE).scale(1/1.2).shift(-0.1*RIGHT))
                 self.slide_break()
 
                 self.play(Write(points[2][1]),ham[10].animate.set_color(YELLOW).scale(1.2))
@@ -1148,13 +1131,19 @@ class StatMech(SlideScene):
                 self.slide_break()
 
                 oldham=MyTex(
-                    r"H_{E",r"}(\vec s):=-\sum_{i}\sum_{\sigma\in\mathcal P_i}J_i(\sigma)\,\llbracket \sigma,E",r"\rrbracket\prod_{ k:\comm{\sigma}{S_k}=-1 } s_k",
+                    r"H_{E",
+                    r"}(\vec s):=-\sum_{i}\sum_{\sigma\in\mathcal P_i}J_i(\sigma)\,\llbracket \sigma,E",
+                    r"\rrbracket\prod_{ k:\comm{\sigma}{S_k}=-1 } s_k",
                     tex_environment="align*")
                 oldham.move_to(ham)
                 self.remove(*ham)
                 self.add(oldham)
                 ham=MyTex(
-                    r"H_{E",r"S_l}",r"(\vec s):=-\sum_{i}\sum_{\sigma\in\mathcal P_i}J_i(\sigma)\,\llbracket \sigma,E",r"S_l",r"\rrbracket\prod_{ k:\comm{\sigma}{S_k}=-1 } s_k",
+                    r"H_{E",
+                    r"S_l}",
+                    r"(\vec s):=-\sum_{i}\sum_{\sigma\in\mathcal P_i}J_i(\sigma)\,\llbracket \sigma,E",
+                    r"S_l",
+                    r"\rrbracket\prod_{ k:\comm{\sigma}{S_k}=-1 } s_k",
                     tex_environment="align*")
                 ham[1].set_color(YELLOW)
                 ham[3].set_color(YELLOW)
@@ -1171,7 +1160,12 @@ class StatMech(SlideScene):
                 self.slide_break()
 
                 oldham=MyTex(
-                    r"H_{E",r"S_l}",r"(\vec s):=-\sum_{i}\sum_{\sigma\in\mathcal P_i}J_i(\sigma)\,\llbracket \sigma,E",r"S_l",r"\rrbracket",r"\prod_{ k:\comm{\sigma}{S_k}=-1 } s_k",
+                    r"H_{E",
+                    r"S_l}",
+                    r"(\vec s):=-\sum_{i}\sum_{\sigma\in\mathcal P_i}J_i(\sigma)\,\llbracket \sigma,E",
+                    r"S_l",
+                    r"\rrbracket",
+                    r"\prod_{ k:\comm{\sigma}{S_k}=-1 } s_k",
                     tex_environment="align*")
                 oldham[1].set_color(YELLOW)
                 oldham[3].set_color(YELLOW)
@@ -1179,7 +1173,12 @@ class StatMech(SlideScene):
                 self.remove(*ham)
                 self.add(oldham)
                 ham=MyTex(
-                    r"H_{E",r"S_l}",r"(\vec s):=-\sum_{i}\sum_{\sigma\in\mathcal P_i}J_i(\sigma)\,\llbracket \sigma,E",r"\rrbracket",r"\comm{\sigma}{S_l}",r"\prod_{ k:\comm{\sigma}{S_k}=-1 } s_k",
+                    r"H_{E",
+                    r"S_l}",
+                    r"(\vec s):=-\sum_{i}\sum_{\sigma\in\mathcal P_i}J_i(\sigma)\,\llbracket \sigma,E",
+                    r"\rrbracket",
+                    r"\comm{\sigma}{S_l}",
+                    r"\prod_{ k:\comm{\sigma}{S_k}=-1 } s_k",
                     tex_environment="align*")
                 ham[1].set_color(YELLOW)
                 ham[4].set_color(YELLOW)
@@ -1188,14 +1187,18 @@ class StatMech(SlideScene):
                     ReplacementTransform(oldham[0],ham[0]),
                     ReplacementTransform(oldham[1],ham[1]),
                     ReplacementTransform(oldham[2],ham[2]),
-                    ReplacementTransform(oldham[3],ham[3]),
-                    ReplacementTransform(oldham[4],ham[4]),
+                    ReplacementTransform(oldham[3],ham[4]),
+                    ReplacementTransform(oldham[4],ham[3]),
                     ReplacementTransform(oldham[5],ham[5]),
                 )
                 self.slide_break()
 
                 oldham=MyTex(
-                    r"H_{E",r"S_l}",r"(\vec s):=-\sum_{i}\sum_{\sigma\in\mathcal P_i}J_i(\sigma)\,\llbracket \sigma,E\rrbracket",r"\comm{\sigma}{S_l}",r"\prod_{ k:\comm{\sigma}{S_k}=-1 } s_k",
+                    r"H_{E",
+                    r"S_l}",
+                    r"(\vec s):=-\sum_{i}\sum_{\sigma\in\mathcal P_i}J_i(\sigma)\,\llbracket \sigma,E\rrbracket",
+                    r"\comm{\sigma}{S_l}",
+                    r"\prod_{ k:\comm{\sigma}{S_k}=-1 } s_k",
                     tex_environment="align*")
                 oldham[1].set_color(YELLOW)
                 oldham[3].set_color(YELLOW)
@@ -1203,7 +1206,11 @@ class StatMech(SlideScene):
                 self.remove(*ham)
                 self.add(oldham)
                 ham=MyTex(
-                    r"H_{E",r"S_l}",r"(\vec s):=-\sum_{i}\sum_{\sigma\in\mathcal P_i}J_i(\sigma)\,\llbracket \sigma,E\rrbracket",r"\prod_{ k:\comm{\sigma}{S_k}=-1 } s_k",r"(-1)^{\delta_{k,l}}",
+                    r"H_{E",
+                    r"S_l}",
+                    r"(\vec s):=-\sum_{i}\sum_{\sigma\in\mathcal P_i}J_i(\sigma)\,\llbracket \sigma,E\rrbracket",
+                    r"\prod_{ k:\comm{\sigma}{S_k}=-1 } s_k",
+                    r"(-1)^{\delta_{k,l}}",
                     tex_environment="align*")
                 ham[1].set_color(YELLOW)
                 ham[4].set_color(YELLOW)
@@ -1218,7 +1225,12 @@ class StatMech(SlideScene):
                 self.slide_break()
 
                 oldham=MyTex(
-                    r"H_{E",r"S_l}",r"(\vec s)",r":=-\sum_{i}\sum_{\sigma\in\mathcal P_i}J_i(\sigma)\,\llbracket \sigma,E\rrbracket",r"\prod_{ k:\comm{\sigma}{S_k}=-1 } s_k",r"(-1)^{\delta_{k,l}}",
+                    r"H_{E",
+                    r"S_l}",
+                    r"(\vec s)",
+                    r":=-\sum_{i}\sum_{\sigma\in\mathcal P_i}J_i(\sigma)\,\llbracket \sigma,E\rrbracket",
+                    r"\prod_{ k:\comm{\sigma}{S_k}=-1 } s_k",
+                    r"(-1)^{\delta_{k,l}}",
                     tex_environment="align*")
                 oldham[1].set_color(YELLOW)
                 oldham[5].set_color(YELLOW)
@@ -1226,7 +1238,11 @@ class StatMech(SlideScene):
                 self.remove(*ham)
                 self.add(oldham)
                 ham=MyTex(
-                    r"H_{E",r"S_l}",r"(\vec s)",r"=H_{E}(\vec{s}\oplus",r"\vec{e_l}",r")",
+                    r"H_{E",
+                    r"S_l}",
+                    r"(\vec s)",
+                    r"=H_{E}(\vec{s}\oplus",
+                    r"\vec{e_l}",r")",
                     tex_environment="align*")
                 ham[1].set_color(YELLOW)
                 ham[4].set_color(YELLOW)
@@ -1241,8 +1257,6 @@ class StatMech(SlideScene):
                     FadeIn(ham[3:])
                 )
                 self.slide_break()
-
-
 
                 gauge2=MyTex(r"Applying stabiliser = Flipping spin").move_to(1.5*DOWN)
                 self.play(FadeIn(gauge2))
@@ -1324,12 +1338,26 @@ class StatMech(SlideScene):
                 self.slide_break()
 
                 self.remove(*eq2)
-                eq2=MyTex(r"\sum_{F\in\overline{E}}",r"e^{",r"\sum_{i,\sigma_i}",r"\beta J_i(\sigma_i)\comm{\sigma_i}{F_i}}",r"\stackrel{!}{=}",r"\sum_{F\in\overline{E}}\Pr(F)",tex_environment="align*",scale=sc).move_to(eq2)
+                eq2=MyTex(
+                    r"\sum_{F\in\overline{E}}",
+                    r"e^{\sum_{",
+                    r"i,",
+                    r"\sigma_i} \beta J_i(\sigma_i)\comm{\sigma_i}{F_i}}",
+                    r"\stackrel{!}{=}",
+                    r"\sum_{F\in\overline{E}}\Pr(F)",
+                    tex_environment="align*",scale=sc).move_to(eq2)
                 eq2[:-2].set_color(BLUE)
                 eq2[-1].set_color(RED)
                 eq2.scale(sc)
                 self.add(eq2)
-                x=MyTex(r"\sum_{F\in\overline{E}}",r"\prod_{i}",r"e^{",r"\sum_{\sigma_i}",r"\beta J_i(\sigma_i)\comm{\sigma_i}{F_i}}",r"\stackrel{!}{=}",r"\sum_{F\in\overline{E}}\Pr(F)",tex_environment="align*",scale=sc).move_to(eq2)
+                x=MyTex(
+                    r"\sum_{F\in\overline{E}}",
+                    r"\prod_{i}",
+                    r"e^{\sum_{",
+                    r"\sigma_i} \beta J_i(\sigma_i)\comm{\sigma_i}{F_i}}",
+                    r"\stackrel{!}{=}",
+                    r"\sum_{F\in\overline{E}}\Pr(F)",
+                    tex_environment="align*",scale=sc).move_to(eq2)
                 x[:-2].set_color(BLUE)
                 x[-1].set_color(RED)
                 x.scale(sc)
@@ -1337,10 +1365,9 @@ class StatMech(SlideScene):
                     Transform(eq2[0],x[0]),
                     Transform(eq2[1],x[2]),
                     Transform(eq2[2],x[1]),
-                    FadeIn(x[3]),
-                    Transform(eq2[3],x[4]),
-                    Transform(eq2[4],x[5]),
-                    Transform(eq2[5],x[6]),
+                    Transform(eq2[3],x[3]),
+                    Transform(eq2[4],x[4]),
+                    Transform(eq2[5],x[5]),
                 )
                 self.slide_break()
 
@@ -1373,29 +1400,39 @@ class StatMech(SlideScene):
                 self.slide_break()
 
                 self.remove(*eq2)
-                eq2=MyTex(r"\sum_{F\in\overline{E}}\prod_{i}e^{\sum_{\sigma_i}\beta J_i(\sigma_i)\comm{\sigma_i}{F_i}}",r"\stackrel{!}{=}",r"\sum_{F\in\overline{E}}\prod_ie^{\log p_i(F_i)}",tex_environment="align*",scale=sc).move_to(eq2)
-                eq2[0].set_color(BLUE)
-                eq2[2].set_color(RED)
+                eq2=MyTex(
+                    r"\sum_{F\in\overline{E}}\prod_{i}e^{",
+                    r"\sum_{\sigma_i}\beta J_i(\sigma_i)\comm{\sigma_i}{F_i}}",
+                    r"\stackrel{!}{=}",
+                    r"\sum_{F\in\overline{E}}\prod_ie^{",
+                    r"\log p_i(F_i)}",
+                    tex_environment="align*",scale=sc).move_to(eq2)
+                eq2[:2].set_color(BLUE)
+                eq2[-2:].set_color(RED)
                 eq2.scale(sc)
                 self.add(eq2)
 
                 # self.play(eq1.animate.shift(1*UP),eq2.animate.shift(1*UP))
-                eq3=MyTex(r"\sum_{\sigma_i}\beta J_i(\sigma_i)\comm{\sigma_i}{F_i}",r"\stackrel{!}{=}",r"\log p_i(F_i)",tex_environment="align*",scale=sc).move_to(eq2)
+                eq3=MyTex(
+                    r"\sum_{\sigma_i}\beta J_i(\sigma_i)\comm{\sigma_i}{F_i}",
+                    r"\stackrel{!}{=}",
+                    r"\log p_i(F_i)",
+                    tex_environment="align*",scale=sc).move_to(eq2)
                 eq3[0].set_color(BLUE)
-                eq3[2].set_color(RED)
+                eq3[-1].set_color(RED)
                 eq3.move_to(1.5*DOWN)
                 eq3.scale(sc)
                 self.play(
-                    TransformFromCopy(eq2[0],eq3[0]),
-                    TransformFromCopy(eq2[1],eq3[1]),
-                    TransformFromCopy(eq2[2],eq3[2]),
+                    TransformFromCopy(eq2[1],eq3[0]),
+                    TransformFromCopy(eq2[2],eq3[1]),
+                    TransformFromCopy(eq2[4],eq3[2]),
                 )
                 self.slide_break()
 
                 self.play(FadeOut(eq2),eq3.animate.shift(1.5*UP))
                 self.slide_break()
 
-                eq4=MyTex(r"\beta J_i(\sigma_i)",r"=",r"\frac{1}{4}\sum_{\tau_i}\log p(\tau_i)\comm{\sigma_i}{\tau^{-1}_i}",tex_environment="align*",scale=sc).move_to(eq2)
+                eq4=MyTex(r"\beta J_i(\sigma_i)",r"=",r"\frac{1}{4}\sum_{\tau_i}\log p(\tau_i)\comm{\sigma_i}{\tau^{-1}_i}",tex_environment="align*",scale=sc).move_to(eq2).scale(sc)
                 eq4[0].set_color(BLUE)
                 eq4[2].set_color(YELLOW)
                 eq4.move_to(2*DOWN)
@@ -1410,11 +1447,11 @@ class StatMech(SlideScene):
                 self.slide_break()
 
                 self.remove(*eq3)
-                eq3=MyTex(r"\sum_{\sigma_i}",r"\beta J_i(\sigma_i)",r"\comm{\sigma_i}{F_i}",r"\stackrel{!}{=}",r"\log p_i(F_i)",tex_environment="align*").move_to(eq3).scale(sc)
+                eq3=MyTex(r"\sum_{\sigma_i}",r"\beta J_i(\sigma_i)",r"\comm{\sigma_i}{F_i}",r"\stackrel{!}{=}",r"\log p_i(F_i)",tex_environment="align*",scale=sc).move_to(eq3).scale(sc)
                 eq3[:3].set_color(BLUE)
                 eq3[-1].set_color(RED)
                 self.add(eq3)
-                eq3_new=MyTex(r"\sum_{\sigma_i}",r"\frac 14 \sum_{\tau_i}\log p_i(\tau_i)\comm{\sigma_i}{\tau_i^{-1}}",r"\comm{\sigma_i}{F_i}",r"=",r"\log p_i(F_i)",tex_environment="align*").move_to(eq3).scale(sc)
+                eq3_new=MyTex(r"\sum_{\sigma_i}",r"\frac 14 \sum_{\tau_i}\log p_i(\tau_i)\comm{\sigma_i}{\tau_i^{-1}}",r"\comm{\sigma_i}{F_i}",r"=",r"\log p_i(F_i)",tex_environment="align*",scale=sc).move_to(eq3).scale(sc)
                 eq3_new[0].set_color(BLUE)
                 eq3_new[1].set_color(YELLOW)
                 eq3_new[2].set_color(BLUE)
@@ -1430,13 +1467,13 @@ class StatMech(SlideScene):
                 self.slide_break()
 
                 self.remove(*eq3,*eq3_new)
-                eq3=MyTex(r"\sum_{\sigma_i}",r"\frac 14",r"\sum_{\tau_i}\log p_i(\tau_i)",r"\,\bigl\llbracket\sigma_i,\tau_i^{-1}",r"\bigr\rrbracket",r"\,\llbracket\sigma_i,",r"F_i",r"\rrbracket",r"=",r"\log p_i(F_i)",tex_environment="align*").move_to(eq3_new).scale(sc)
+                eq3=MyTex(r"\sum_{\sigma_i}",r"\frac 14",r"\sum_{\tau_i}\log p_i(\tau_i)",r"\,\bigl\llbracket\sigma_i,\tau_i^{-1}",r"\bigr\rrbracket",r"\,\llbracket\sigma_i,",r"F_i",r"\rrbracket",r"=",r"\log p_i(F_i)",tex_environment="align*",scale=sc).move_to(eq3_new).scale(sc)
                 eq3[0].set_color(BLUE)
                 eq3[1:5].set_color(YELLOW)
                 eq3[5:8].set_color(BLUE)
                 eq3[9].set_color(RED)
                 self.add(eq3)
-                eq3_new=MyTex(r"\sum_{\tau_i}\log p(\tau_i)",r"\frac 14",r"\sum_{\sigma_i}",r"\,\bigl\llbracket\sigma_i,\tau^{-1}_i",r"F_i",r"\bigr\rrbracket",r"=",r"\log p_i(F_i)",tex_environment="align*").move_to(eq3).scale(sc)
+                eq3_new=MyTex(r"\sum_{\tau_i}\log p(\tau_i)",r"\frac 14",r"\sum_{\sigma_i}",r"\,\bigl\llbracket\sigma_i,\tau^{-1}_i",r"F_i",r"\bigr\rrbracket",r"=",r"\log p_i(F_i)",tex_environment="align*",scale=sc).move_to(eq3).scale(sc)
                 eq3_new[0:6].set_color(YELLOW)
                 eq3_new[7].set_color(RED)
                 self.play(
@@ -1454,11 +1491,11 @@ class StatMech(SlideScene):
                 self.slide_break()
 
                 self.remove(*eq3,*eq3_new)
-                eq3=MyTex(r"\sum_{\tau_i}\log p(\tau_i)",r"\frac 14 \sum_{\sigma_i} \comm{\sigma_i}{\tau^{-1}_iF_i}",r"=",r"\log p_i(F_i)",tex_environment="align*").move_to(eq3).scale(sc)
+                eq3=MyTex(r"\sum_{\tau_i}\log p(\tau_i)",r"\frac 14 \sum_{\sigma_i} \comm{\sigma_i}{\tau^{-1}_iF_i}",r"=",r"\log p_i(F_i)",tex_environment="align*",scale=sc).move_to(eq3).scale(sc)
                 eq3[0:2].set_color(YELLOW)
                 eq3[3].set_color(RED)
                 self.add(eq3)
-                eq3_new=MyTex(r"\sum_{\tau_i}\log p(\tau_i)",r"\delta_{\tau_i,F_i}",r"=",r"\log p_i(F_i)",tex_environment="align*").move_to(eq3).scale(sc)
+                eq3_new=MyTex(r"\sum_{\tau_i}\log p(\tau_i)",r"\delta_{\tau_i,F_i}",r"=",r"\log p_i(F_i)",tex_environment="align*",scale=sc).move_to(eq3).scale(sc)
                 eq3_new[0:2].set_color(YELLOW)
                 eq3_new[3].set_color(RED)
                 self.play(
@@ -1467,11 +1504,11 @@ class StatMech(SlideScene):
                 self.slide_break()
 
                 self.remove(*eq3)
-                eq3=MyTex(r"\sum_{\tau_i}",r"\log p(",r"\tau_i",r")",r"\delta_{\tau_i,F_i}",r"=",r"\log p_i(F_i)",tex_environment="align*").move_to(eq3).scale(sc)
+                eq3=MyTex(r"\sum_{\tau_i}",r"\log p(",r"\tau_i",r")",r"\delta_{\tau_i,F_i}",r"=",r"\log p_i(F_i)",tex_environment="align*",scale=sc).move_to(eq3).scale(sc)
                 eq3[0:5].set_color(YELLOW)
                 eq3[6].set_color(RED)
                 self.add(eq3)
-                eq3_new=MyTex(r"\log p(",r"F_i",r")",r"=",r"\log p_i(F_i)",tex_environment="align*").move_to(eq3).scale(sc)
+                eq3_new=MyTex(r"\log p(",r"F_i",r")",r"=",r"\log p_i(F_i)",tex_environment="align*",scale=sc).move_to(eq3).scale(sc)
                 eq3_new[0:3].set_color(YELLOW)
                 eq3_new[4].set_color(RED)
                 self.play(
@@ -1488,7 +1525,7 @@ class StatMech(SlideScene):
                 self.play(FadeOut(eq3))
                 self.slide_break()
 
-                eq1_new=MyTex(r"Z_E",r"=",r"\Pr(\overline{E})",tex_environment="align*").move_to(eq1).shift(3*DOWN/4 ).scale(sc)
+                eq1_new=MyTex(r"Z_E",r"=",r"\Pr(\overline{E})",tex_environment="align*",scale=sc).move_to(eq1).shift(3*DOWN/4 ).scale(sc)
                 eq1_new[0].set_color(BLUE)
                 eq1_new[2].set_color(RED)
                 self.play(eq4.animate.shift(3*UP/4),sr.animate.shift(3*UP/4),Transform(eq1,eq1_new))
@@ -1510,7 +1547,7 @@ class StatMech(SlideScene):
 
 class Examples(SlideScene):
         def construct(self):
-            tocindex=4
+            tocindex=3
             heading = toc[tocindex].copy()
             self.add(toc[0:tocindex],heading,toc[tocindex+1:],footer)
             self.play(FadeOut(toc[0:tocindex]),FadeOut(toc[tocindex+1:]), heading.animate.move_to(ORIGIN).scale(1.5).to_corner(UP))
@@ -2011,7 +2048,7 @@ class Examples(SlideScene):
 
 class SMD(SlideScene):
         def construct(self):
-            tocindex=6
+            tocindex=4
             heading = toc[tocindex].copy()
             self.add(toc[0:tocindex],heading,toc[tocindex+1:],footer)
             self.play(FadeOut(toc[0:tocindex]),FadeOut(toc[tocindex+1:]), heading.animate.move_to(ORIGIN).scale(1.5).to_corner(UP))
@@ -2067,12 +2104,50 @@ class SMD(SlideScene):
                 self.slide_break()
 
                 steps=VGroup(
-                    MyTex("Step 1: Measure the syndrome, $s$"),
-                    MyTex("Step 2: Construct an arbitrary error $A_s$ with syndrome $s$"),
-                    MyTex("Step 3: Approximate $\Pr(\overline{A_sL_l})=Z_{A_sL_l}$ for each logical class"),
-                    MyTex("Step 4: Pick the $l$ for which $\Pr(\overline{A_sL_l})$ is maximised"),
-                    MyTex("Step 5: Apply $(A_sL_l)^{-1}$"),
-                ).arrange(DOWN,aligned_edge=LEFT).move_to(DOWN)
+                    MyTex("Step 1: Measure the syndrome, ","$s$"),
+                    MyTex("Step 2: Construct an arbitrary error ","$A_s$"," with syndrome ","$s$"),
+                    MyTex(
+                        r"\text{Step 3: Approximate }\Pr(\overline{\phantom{A_sL_l}})=",
+                        r"A_s",
+                        r"L_l\phantom{)=}",
+                        r"Z_{",
+                        r"A_s",
+                        r"L_l",
+                        r"}\text{ for each logical class }",
+                        r"l",
+                        tex_environment="align*"),
+                    MyTex(
+                        r"\text{Step 4: Pick the }",
+                        r"l",
+                        r"\text{ for which }\Pr(\overline{\phantom{A_sL_l}})",
+                        r"A_s",
+                        r"L_l\phantom{)}",
+                        r"\text{ is maximised}",
+                        tex_environment="align*"),
+                    MyTex("Step 5: Apply $($","$A_s$","$L_l$","$)^{-1}$"),
+                ).arrange(DOWN,aligned_edge=LEFT)
+
+                steps[2][1:].shift(1.9*LEFT)
+                steps[3][3:].shift(1.3*LEFT)
+                steps.move_to(DOWN)
+
+                steps[0][1].set_color(YELLOW)
+                steps[1][1].set_color(YELLOW)
+                steps[1][3].set_color(YELLOW)
+                steps[2][1].set_color(YELLOW)
+                steps[2][4].set_color(YELLOW)
+                steps[3][3].set_color(YELLOW)
+                steps[4][1].set_color(YELLOW)
+
+                steps[2][2].set_color(BLUE)
+                steps[2][5].set_color(BLUE)
+                steps[2][7].set_color(BLUE)
+                steps[3][1].set_color(BLUE)
+                steps[3][4].set_color(BLUE)
+                steps[4][2].set_color(BLUE)
+
+                steps[2][3].set_color(RED)
+
                 for i in range(5):
                     self.play(Write(steps[i]))
                     self.slide_break()
@@ -2098,58 +2173,60 @@ class SMD(SlideScene):
                 axis_labels[1].rotate(90*DEGREES).next_to(ax,LEFT)
 
                 x=np.arange(-5,5,0.1)
-                l1 = ax.get_line_graph(
+                l1 = ax.plot_line_graph(
                     x_values = x+5,
                     y_values = 1/(1+np.exp(-x/4)),
                     vertex_dot_radius=0,
                     line_color=RED,
                     stroke_width = 3,
                 )
-                l2 = ax.get_line_graph(
+                l2 = ax.plot_line_graph(
                     x_values = x+5,
                     y_values = 1/(1+np.exp(-x/2)),
                     vertex_dot_radius=0,
                     line_color=ORANGE,
                     stroke_width = 3,
                 )
-                l3 = ax.get_line_graph(
+                l3 = ax.plot_line_graph(
                     x_values = x+5,
                     y_values = 1/(1+np.exp(-x*2)),
                     vertex_dot_radius=0,
                     line_color=YELLOW,
                     stroke_width = 3,
                 )
-                l4 = ax.get_line_graph(
+                l4 = ax.plot_line_graph(
                     x_values = x+5,
                     y_values = 1/(1+np.exp(-x*4)),
                     vertex_dot_radius=0,
                     line_color=GREEN,
                     stroke_width = 3,
                 )
-                l5 = ax.get_line_graph(
+                l5 = ax.plot_line_graph(
                     x_values = x+5,
                     y_values = 1/(1+np.exp(-x*8)),
                     vertex_dot_radius=0,
                     line_color=BLUE,
                     stroke_width = 3,
                 )
-                th=(ax.get_line_graph(
+                th=(ax.plot_line_graph(
                     x_values = [5,5],
                     y_values = [0,1],
                     vertex_dot_radius=0,
                     line_color=WHITE,
                     stroke_width = 3,
                 ))
+
+
                 self.play(FadeIn(ax),FadeIn(axis_labels))
                 self.slide_break()
 
-                self.play(Write(l1,run_time=1))
+                self.play(Write(l1,run_time=5))
                 self.slide_break()
-                self.play(Write(l2,run_time=2))
+                self.play(Write(l2,run_time=5))
                 self.slide_break()
-                self.play(Write(l3,run_time=3))
+                self.play(Write(l3,run_time=5))
                 self.slide_break()
-                self.play(Write(l4,run_time=4))
+                self.play(Write(l4,run_time=5))
                 self.slide_break()
                 self.play(Write(l5,run_time=5))
                 self.slide_break()
@@ -2176,9 +2253,9 @@ class SMD(SlideScene):
                 self.play(FadeIn(high_hist))
                 self.slide_break()
 
-                x=[2,4,8,16]
-                c=[ORANGE,YELLOW,GREEN,BLUE]
-                for j in range(4):
+                x=[2,4,8,16,10**6]
+                c=[ORANGE,YELLOW,GREEN,BLUE,WHITE]
+                for j in range(5):
                     old_low_hist=low_hist
                     low_hist=VGroup()
                     r=np.random.rand(4)
@@ -2219,39 +2296,329 @@ class SMD(SlideScene):
             if subsec3:
                 # Phase transition proof
 
-                prob=MyTex("\Pr(s,l):=\Pr(\overline{D_sL_l})",tex_environment="align*").move_to(UP/2)
+                prob=MyTex("\Pr(","{s}",",","{l}","):=\Pr(\overline{\phantom{D_xL_x}})","D_s","L_l",tex_environment="align*")
+                prob[-2:].shift(1.4*LEFT)
+                prob.move_to(UP/2)
+                prob.set_color_by_tex("{s}",YELLOW)
+                prob.set_color_by_tex("{l}",BLUE)
+                prob.set_color_by_tex("D_s",YELLOW)
+                prob.set_color_by_tex("L_l",BLUE)
                 self.play(FadeIn(prob))
                 self.slide_break()
 
-                mld=MyTex(r"MLD: $\Pr(s,1)\geq \Pr(s,l)~\forall s,l$").move_to(DOWN/2)
+                mld=MyTex("\\text{MLD: }\Pr(","{s}",",","{1}",")\\geq \\Pr(","{s}",",","{l}",")~\\forall ","{s}",",","{l}",tex_environment="align*").move_to(DOWN/2)
+                mld.set_color_by_tex("{s}",YELLOW)
+                mld.set_color_by_tex("{l}",BLUE)
+                mld.set_color_by_tex("{1}",BLUE)
                 self.play(FadeIn(mld))
                 self.slide_break()
 
-                self.play(prob.animate.shift(2*UP),mld.animate.shift(2*UP))
+                self.play(prob.animate.shift(1.5*UP),mld.animate.shift(1.5*UP))
                 self.slide_break()
+
+                # fed=MyTex(
+                #     r"\Delta_{ {{ m }} }({{ E }}):=&F_{ {{ E }} {{ L_m} }} (\beta_N)-F_{ {{ E }} }(\beta_N)\\",
+                #     r"\Delta_{ {{ m }} }( {{ s }} , {{ l }} )=&\frac{1}{\beta_N}\log {\Pr( {{ s }} , {{ l }} )\over \Pr( {{ s }} , {{ l }} \oplus {{ m }} )}\\",
+                #     r"\Delta_m:=&\left\langle\Delta_m(s,l)\right\rangle_{s,l}\\",
+                #     r"=&\frac{1}{\beta_N}\sum_{s,l}\Pr(s,l)\log {\Pr( s, {{ l }} )}\over{\Pr(s,l\oplus m)}\\",
+                #     tex_environment="align*").move_to(2*DOWN+RIGHT)
+                # fed.set_color_by_tex(" E ",YELLOW)
+                # fed.set_color_by_tex(" L_m} ",RED)
+                # fed.set_color_by_tex(" m ",YELLOW)
+                # fed.set_color_by_tex(" s ",YELLOW)
+                # fed.set_color_by_tex(" l ",BLUE)
 
                 fed=MyTex(
-                    r"\Delta_m(E):=&F_{EL_m}(\beta_N)-F_{E}(\beta_n)\\",
-                    r"\Delta_m(s,l)=&\frac{1}{\beta_N}\log \frac{\Pr(s,l)}{\Pr(s,l\oplus m)}\\",
-                    r"\Delta_m:=&\left\langle\Delta_m(s,l)\right\rangle_{s,l}\\",
-                    r"=&\frac{1}{\beta_N}\sum_{s,l}\Pr(s,l)\log \frac{\Pr(s,l)}{\Pr(s,l\oplus m)}",
-                    tex_environment="align*").move_to(2*DOWN)
-                self.play(Write(fed[0]))
+                    r"\Delta_{",
+                    r"m",
+                    r"}(",
+                    r"E",
+                    r")",
+                    r":=",
+                    r"F_{",
+                    r"E",
+                    r"L_m}",
+                    r"(\beta_N)-",
+                    r"F_{",
+                    r"E",
+                    r"}(\beta_N)",
+                    tex_environment="align*").move_to(DOWN)
+                fed[1].set_color(RED)
+                fed[3].set_color(YELLOW)
+                fed[7].set_color(YELLOW)
+                fed[8].set_color(RED)
+                fed[11].set_color(YELLOW)
+
+                self.play(Write(fed))
                 self.slide_break()
 
-                self.play(Write(fed[1]))
+                newfed=MyTex(
+                    r"\Delta_{",
+                    r"m",
+                    r"}(",
+                    r"E",
+                    r")",
+                    r"=-",
+                    r"\frac{1}{\beta_N}\log Z_{",
+                    r"E",
+                    r"L_m}",
+                    r"(\beta_N)+",
+                    r"\frac{1}{\beta_N}\log Z_{",
+                    r"E",
+                    r"}(\beta_N)",
+                    tex_environment="align*").move_to(fed,aligned_edge=LEFT)
+                newfed[1].set_color(RED)
+                newfed[3].set_color(YELLOW)
+                newfed[7].set_color(YELLOW)
+                newfed[8].set_color(RED)
+                newfed[11].set_color(YELLOW)
+
+                self.play(Transform(fed,newfed))
                 self.slide_break()
 
-                self.play(FadeOut(prob),FadeOut(mld),FadeOut(fed[0]),fed[1].animate.shift(2*UP))
+                # self.remove(*fed)
+                # oldfed=MyTex(
+                #     r" ",
+                #     r"\Delta_{",
+                #     r"m",
+                #     r"}(",
+                #     r"E",
+                #     r")",
+                #     r"=-",
+                #     r"\frac{1}{\beta_N}",
+                #     r"\log Z_{",
+                #     r"E",
+                #     r"L_m}",
+                #     r"(\beta_N)+",
+                #     r"\frac{1}{\beta_N}",
+                #     r"\log Z_{",
+                #     r"E",
+                #     r"}(\beta_N)",
+                #     tex_environment="align*").move_to(fed)
+                # oldfed[2].set_color(RED)
+                # oldfed[4].set_color(YELLOW)
+                # oldfed[9].set_color(YELLOW)
+                # oldfed[10].set_color(RED)
+                # oldfed[14].set_color(YELLOW)
+                # self.add(oldfed)
+                #
+                # fed=MyTex(
+                #     r"\beta_N",
+                #     r"\Delta_{",
+                #     r"m",
+                #     r"}(",
+                #     r"E",
+                #     r")",
+                #     r"=-",
+                #     r" ",
+                #     r"\log Z_{",
+                #     r"E",
+                #     r"L_m}",
+                #     r"(\beta_N)+",
+                #     r" ",
+                #     r"\log Z_{",
+                #     r"E",
+                #     r"}(\beta_N)",
+                #     tex_environment="align*").move_to(oldfed)
+                # fed[0].shift(oldfed[1].get_center()-fed[1].get_center())
+                # fed[1:].move_to(oldfed,aligned_edge=LEFT)
+                # fed[2].set_color(RED)
+                # fed[4].set_color(YELLOW)
+                # fed[9].set_color(YELLOW)
+                # fed[10].set_color(RED)
+                # fed[14].set_color(YELLOW)
+                #
+                # self.play(
+                #     ReplacementTransform(VGroup(oldfed[7],oldfed[12]),fed[0]),
+                #     *[ReplacementTransform(oldfed[i],fed[i]) for i in range(0,len(fed)) if i!=7 and i!=12],
+                # )
+                # self.slide_break()
+
+                self.remove(*fed)
+                fed=MyTex(
+                    r"\Delta_{",
+                    r"m",
+                    r"}(",
+                    r"E",
+                    r")",
+                    r"=",
+                    r"-",
+                    r"\frac{1}{\beta_N}\log ",
+                    r"Z_{",
+                    r"E",
+                    r"L_m}",
+                    r"(\beta_N)",
+                    r"+\frac{1}{\beta_N}",
+                    r"\log Z_{",
+                    r"E",
+                    r"}(\beta_N)",
+                    tex_environment="align*").move_to(fed)
+                fed[1].set_color(RED)
+                fed[3].set_color(YELLOW)
+                fed[9].set_color(YELLOW)
+                fed[10].set_color(RED)
+                fed[14].set_color(YELLOW)
+                self.add(fed)
+                newfed=MyTex(
+                    r"\Delta_{",
+                    r"m",
+                    r"}(",
+                    r"E",
+                    r")",
+                    r"=",
+                    r" ",
+                    r"\frac{1}{\beta_N}\log",
+                    r"{Z_{",
+                    r"E",
+                    r"}(\beta_N)",
+                    r" ",
+                    r"\over ",
+                    r"Z_{",
+                    r"E",
+                    r"L_m}",
+                    r"(\beta_N)",
+                    tex_environment="align*").move_to(fed)
+                newfed[1].set_color(RED)
+                newfed[3].set_color(YELLOW)
+                newfed[9].set_color(YELLOW)
+                newfed[15].set_color(RED)
+                newfed[14].set_color(YELLOW)
+                newfed.move_to(fed,aligned_edge=LEFT)
+                self.play(
+                    Transform(fed[0:8],newfed[0:8]),
+                    Transform(fed[8:12],newfed[13:17]),
+                    Transform(fed[13:16],newfed[8:11]),
+                    Transform(fed[12],newfed[12]),
+                )
                 self.slide_break()
 
-                fed[2:4].shift(1.5*UP)
-                self.play(Write(fed[2]))
-                self.slide_break()
-                self.play(Write(fed[3]))
+                self.remove(*fed)
+                fed=MyTex(
+                    r"\Delta_{",
+                    r"m",
+                    r"}(",
+                    r"E",
+                    r")",
+                    r"=",
+                    r"\frac{1}{\beta_N}\log",
+                    r"{Z_{",
+                    r"E",
+                    r"}(\beta_N)",
+                    r"\over ",
+                    r"Z_{",
+                    r"E",
+                    r"L_m}",
+                    r"(\beta_N)",
+                    tex_environment="align*").move_to(fed)
+                fed[1].set_color(RED)
+                fed[3].set_color(YELLOW)
+                fed[8].set_color(YELLOW)
+                fed[13].set_color(RED)
+                fed[12].set_color(YELLOW)
+                self.add(fed)
+                newfed=MyTex(
+                    r"\Delta_{",
+                    r"m",
+                    r"}(",
+                    r"s",
+                    r",",
+                    r"l",
+                    r")",
+                    r"=",
+                    r"\frac{1}{\beta_N}\log ",
+                    r"{\Pr(",
+                    r"s",
+                    r",",
+                    r"l",
+                    r")",
+                    r"\over ",
+                    r"\Pr(",
+                    r"s",
+                    r",",
+                    r"l",
+                    r"\oplus ",
+                    r"m",
+                    r")}",
+                    tex_environment="align*")
+                newfed.shift(-newfed[7].get_center()+fed[5].get_center())
+                newfed[1].set_color(RED)
+                newfed[3].set_color(YELLOW)
+                newfed[5].set_color(BLUE)
+                newfed[10].set_color(YELLOW)
+                newfed[12].set_color(BLUE)
+                newfed[16].set_color(YELLOW)
+                newfed[18].set_color(BLUE)
+                newfed[20].set_color(RED)
+                self.play(
+                    Transform(fed[:3],newfed[:3]),
+                    Transform(fed[3],newfed[3:6]),
+                    Transform(fed[4:8],newfed[6:10]),
+                    Transform(fed[8],newfed[10:13]),
+                    Transform(fed[9:12],newfed[13:16]),
+                    Transform(fed[12],newfed[16:19]),
+                    FadeIn(newfed[19]),
+                    Transform(fed[13],newfed[20]),
+                    Transform(fed[14],newfed[21]),
+                )
                 self.slide_break()
 
-                self.play(FadeOut(fed[1]),FadeOut(fed[2]),FadeOut(fed[3]))
+                self.remove(*fed,*newfed)
+                fed=newfed
+                self.add(fed)
+                self.play(fed.animate.shift(2*UP),FadeOut(prob),FadeOut(mld))
+                self.slide_break()
+
+                fed2=MyTex(
+                    r"\Delta_{",
+                    r"m}",
+                    r":=",
+                    r"\bigl\langle\Delta_",
+                    r"m",
+                    r"(",
+                    r"s",
+                    r",",
+                    r"l",
+                    r")\bigr\rangle",
+                    tex_environment="align*")
+                fed2.shift(-fed2[2].get_right()+fed[7].get_right()+2*DOWN)
+                fed2[1].set_color(RED)
+                fed2[4].set_color(RED)
+                fed2[6].set_color(YELLOW)
+                fed2[8].set_color(BLUE)
+                self.play(Write(fed2))
+                self.slide_break()
+
+                fed3=MyTex(
+                    r"=",
+                    r"\frac{1}{\beta_N} \sum_{",
+                    r" s ",
+                    r",",
+                    r" l }",
+                    r"\Pr(",
+                    r" s ",
+                    r",",
+                    r" l ",
+                    r")\log {\Pr(",
+                    r" s ",
+                    r",",
+                    r" l ",
+                    r") \over \Pr(",
+                    r" s ",
+                    r",",
+                    r" l ",
+                    r"\otimes ",
+                    r" m ",
+                    r")}",
+                    tex_environment="align*")
+                fed3.shift(-fed3[0].get_right()+fed2[2].get_right()+1*DOWN)
+                fed3.set_color_by_tex(" s ",YELLOW)
+                fed3.set_color_by_tex(" l ",BLUE)
+                fed3.set_color_by_tex(" m ",RED)
+                self.play(Write(fed3))
+                self.slide_break()
+
+                self.play(FadeOut(fed))
+                self.play(VGroup(fed2,fed3).animate.shift(0.5*DOWN))
                 self.slide_break()
 
                 below=VGroup(
@@ -2259,13 +2626,13 @@ class SMD(SlideScene):
                     MyTex(r"$\Pr(\text{dec.\ success})\to 1$"),
                     # MyTex(r"$\Delta_m\to +\infty$"),
                     MyTex(r"$\Delta_m(E)\stackrel{a.s.}{\to}+\infty$"),
-                ).arrange(DOWN).set_color(BLUE).shift(3.5*LEFT)
+                ).arrange(DOWN).set_color(BLUE).shift(3.5*LEFT+0.5*UP)
                 above=VGroup(
                     MyTex("Above threshold").scale(1.25),
                     MyTex(r"$\Pr(\text{dec.\ success})\to 1/K$"),
                     # MyTex(r"$\Delta_m\to +\infty$"),
                     MyTex(r"$\Delta_m(E)\stackrel{a.s.}{\to}0$"),
-                ).arrange(DOWN).set_color(RED).shift(3.5*RIGHT)
+                ).arrange(DOWN).set_color(RED).shift(3.5*RIGHT+0.5*UP)
                 below[0].shift(0.5*UP)
                 above[0].shift(0.5*UP)
 
@@ -2278,7 +2645,7 @@ class SMD(SlideScene):
                 self.play(Write(above[1:]))
                 self.slide_break()
 
-                self.play(FadeOut(below),FadeOut(above))
+                self.play(FadeOut(below),FadeOut(above),FadeOut(fed2),FadeOut(fed3))
                 self.slide_break()
 
             if subsec4:
@@ -2299,7 +2666,7 @@ class SMD(SlideScene):
                 axis_labels[1].rotate(90*DEGREES).next_to(ax,LEFT)
 
                 y=np.arange(0,4.01,0.01)
-                pt = ax.get_line_graph(
+                pt = ax.plot_line_graph(
                     x_values = np.sqrt(1-(y-2)**2/(y-6)**2),
                     y_values = y,
                     vertex_dot_radius=0,
@@ -2400,7 +2767,7 @@ class SMD(SlideScene):
 
 class TND(SlideScene):
         def construct(self):
-            tocindex=7
+            tocindex=5
             heading = toc[tocindex].copy()
             self.add(toc[0:tocindex],heading,toc[tocindex+1:],footer)
             self.play(FadeOut(toc[0:tocindex]),FadeOut(toc[tocindex+1:]), heading.animate.move_to(ORIGIN).scale(1.5).to_corner(UP))
@@ -2427,43 +2794,33 @@ class TND(SlideScene):
 
                 tc=VGroup()
                 tc+=Line([-1.25,-1,0],[+1.25,-1,0],stroke_opacity=0.5)
-                tc+=Line([-1.25,+1,0],[+1.25,+1,0],stroke_opacity=0.5)
                 tc+=Line([-1.25,0,0],[+1.25,0,0],stroke_opacity=0.5)
-                tc+=Line([-0.5,1,0],[-0.5,-1,0],stroke_opacity=0.5)
-                tc+=Line([0.5,1,0],[0.5,-1,0],stroke_opacity=0.5)
-                tc+=Circle(radius=0.05,color=WHITE,fill_opacity=1).move_to(ORIGIN)
-                tc+=Circle(radius=0.05,color=WHITE,fill_opacity=1).move_to(LEFT)
-                tc+=Circle(radius=0.05,color=WHITE,fill_opacity=1).move_to(RIGHT)
-                tc+=Circle(radius=0.05,color=WHITE,fill_opacity=1).move_to(UP)
-                tc+=Circle(radius=0.05,color=WHITE,fill_opacity=1).move_to(UP+LEFT)
-                tc+=Circle(radius=0.05,color=WHITE,fill_opacity=1).move_to(UP+RIGHT)
-                tc+=Circle(radius=0.05,color=WHITE,fill_opacity=1).move_to(DOWN+LEFT)
-                tc+=Circle(radius=0.05,color=WHITE,fill_opacity=1).move_to(DOWN+RIGHT)
-                tc+=Circle(radius=0.05,color=WHITE,fill_opacity=1).move_to(DOWN)
-                tc+=Circle(radius=0.05,color=WHITE,fill_opacity=1).move_to(DOWN/2+LEFT/2)
-                tc+=Circle(radius=0.05,color=WHITE,fill_opacity=1).move_to(DOWN/2+RIGHT/2)
-                tc+=Circle(radius=0.05,color=WHITE,fill_opacity=1).move_to(UP/2+LEFT/2)
-                tc+=Circle(radius=0.05,color=WHITE,fill_opacity=1).move_to(UP/2+RIGHT/2)
-                tc+=Circle(radius=0.1,color=RED).move_to([-1,+0.5,0])
-                tc+=Circle(radius=0.1,color=RED).move_to([+1,+0.5,0])
-                tc+=Circle(radius=0.1,color=RED).move_to([-1,-0.5,0])
-                tc+=Circle(radius=0.1,color=RED).move_to([+1,-0.5,0])
-                tc+=Circle(radius=0.1,color=RED).move_to([0,-0.5,0])
-                tc+=Circle(radius=0.1,color=RED).move_to([0,+0.5,0])
-                tc+=Circle(radius=0.1,color=BLUE,fill_color=config.background_color,fill_opacity=1).move_to([-0.5,-1,0])
-                tc+=Circle(radius=0.1,color=BLUE,fill_color=config.background_color,fill_opacity=1).move_to([-0.5,+1,0])
-                tc+=Circle(radius=0.1,color=BLUE,fill_color=config.background_color,fill_opacity=1).move_to([-0.5, 0,0])
-                tc+=Circle(radius=0.1,color=BLUE,fill_color=config.background_color,fill_opacity=1).move_to([+0.5,-1,0])
-                tc+=Circle(radius=0.1,color=BLUE,fill_color=config.background_color,fill_opacity=1).move_to([+0.5,+1,0])
-                tc+=Circle(radius=0.1,color=BLUE,fill_color=config.background_color,fill_opacity=1).move_to([+0.5, 0,0])
+                tc+=Line([-1.25,+1,0],[+1.25,+1,0],stroke_opacity=0.5)
+                tc+=Line([-0.5,-1,0],[-0.5,1,0],stroke_opacity=0.5)
+                tc+=Line([0.5,-1,0],[0.5,1,0],stroke_opacity=0.5)
+                for x in [-0.5,0.5]:
+                    for y in [-1,0,+1]:
+                        tc+=Circle(radius=0.1,color=BLUE,fill_color=config.background_color,fill_opacity=1).move_to([x, y,0])
+                for x in [-1,0,+1]:
+                    for y in [-0.5,0.5]:
+                        tc+=Circle(radius=0.1,color=RED).move_to([x,y,0])
+                for x in [-1,0,+1]:
+                    for y in [-1,0,+1]:
+                        tc+=Circle(radius=0.05,color=WHITE,fill_opacity=1).move_to([x,y,0])
+                for x in [-0.5,0.5]:
+                    for y in [-0.5,+0.5]:
+                        tc+=Circle(radius=0.05,color=WHITE,fill_opacity=1).move_to([x,y,0])
 
                 tn=VGroup()
-                for x in range(3):
-                    tn+=Line([x,0,0],[x,2,0],color=RED)
-                    tn+=Line([0,x,0],[2,x,0],color=BLUE)
+                for y in range(3):
+                    tn+=Line([0,y,0],[2,y,0],color=BLUE)
                 for x in range(2):
                     tn+=Line([x+.5,0,0],[x+.5,2,0],color=BLUE)
-                    tn+=Line([0,x+.5,0],[2,x+.5,0],color=RED)
+                for y in range(2):
+                    tn+=Line([0,y+.5,0],[2,y+.5,0],color=RED)
+                for x in range(3):
+                    tn+=Line([x,0,0],[x,2,0],color=RED)
+
                 for x in range(2):
                     for y in range(3):
                         tn+=Circle(radius=0.05,color=BLUE,fill_opacity=1).move_to([x+0.5,y,0])
@@ -2496,7 +2853,18 @@ class TND(SlideScene):
                 self.play(Write(tc))
                 self.slide_break()
 
-                self.play(TransformFromCopy(tc,tn[:-1]))
+                # self.play(TransformFromCopy(tc,tn[:-1]))
+                # self.slide_break()
+
+                self.play(TransformFromCopy(tc[0:5],tn[0:5]))
+                # self.slide_break()
+                self.play(TransformFromCopy(tc[5:17],tn[10:22]))
+                # self.slide_break()
+                self.play(TransformFromCopy(tc[17:30],tn[22:35]))
+                # self.slide_break()
+                self.add_foreground_mobjects(tn[22:35])
+                self.play(FadeIn(tn[5:10]))
+                self.remove_foreground_mobjects(tn[22:35])
                 self.slide_break()
 
                 self.play(Write(tn[-1]))
@@ -2915,7 +3283,7 @@ class TND(SlideScene):
 
 class Extensions(SlideScene):
         def construct(self):
-            tocindex=8
+            tocindex=6
             heading = toc[tocindex].copy()
             self.add(toc[0:tocindex],heading,toc[tocindex+1:],footer)
             self.play(FadeOut(toc[0:tocindex]),FadeOut(toc[tocindex+1:]), heading.animate.move_to(ORIGIN).scale(1.5).to_corner(UP))
@@ -2961,19 +3329,48 @@ class Extensions(SlideScene):
                     MyTex("X").move_to([4,2.5,0])
                 ).set_color(RED).shift(2*LEFT)
 
+                checktower=VGroup(
+                    VGroup(
+                        Line([3,2,0],[3.5,2.5,0],stroke_width=10,color=RED),
+                        Line([3.5,2.5,0],[4,2,0],stroke_width=10,color=RED),
+                        Circle(radius=0.15,stroke_color=RED,stroke_width=8,fill_color="#161c20",fill_opacity=1).move_to([3.5,2.5,0]),
+                        Circle(radius=0.15,fill_opacity=1,color=RED).move_to([3,2,0]),
+                        Circle(radius=0.15,fill_opacity=1,color=RED).move_to([4,2,0]),
+                        MyTex("X",color=RED).move_to([3.5,3,0]),
+                        MyTex("X",color=RED).move_to([3,2.5,0]),
+                        MyTex("X",color=RED).move_to([4,2.5,0]),
+                        Line([3,2,0],[3,0,0],stroke_width=10,color=RED),
+                        Line([4,2,0],[4,0,0],stroke_width=10,color=RED),
+                    ),
+                    VGroup(
+                        Circle(radius=0.15,fill_opacity=1,color=RED).move_to([3,1,0]),
+                        Circle(radius=0.15,fill_opacity=1,color=RED).move_to([4,1,0]),
+                        Circle(radius=0.15,fill_opacity=1,color=RED).move_to([3,0,0]),
+                        Circle(radius=0.15,fill_opacity=1,color=RED).move_to([4,0,0]),
+                        MyTex("X",color=RED).move_to([4.5,1,0]),
+                        MyTex("X",color=RED).move_to([4.5,0,0]),
+                        MyTex("X",color=RED).move_to([2.5,1,0]),
+                        MyTex("X",color=RED).move_to([2.5,0,0]),
+                    ),
+                ).shift(2*LEFT)
+
                 check2=VGroup(
-                    Line([3,2,0],[3.5,2.5,0],stroke_width=10,color=RED),
-                    Line([3.5,2.5,0],[4,2,0],stroke_width=10,color=RED),
-                    Line([3,2,0],[3.5,1.5,0],stroke_width=10,color=RED),
-                    Line([3.5,1.5,0],[4,2,0],stroke_width=10,color=RED),
-                    Circle(radius=0.15,fill_opacity=1,color=RED).move_to([3,2,0]),
-                    Circle(radius=0.15,fill_opacity=1,color=RED).move_to([4,2,0]),
-                    Circle(radius=0.15,stroke_color=RED,stroke_width=8,fill_color="#161c20",fill_opacity=1).move_to([3.5,2.5,0]),
-                    Circle(radius=0.15,stroke_color=RED,stroke_width=8,fill_color="#161c20",fill_opacity=1).move_to([3.5,1.5,0]),
-                    MyTex("X",color=RED).move_to([3,2.5,0]),
-                    MyTex("X",color=RED).move_to([4,2.5,0]),
-                    MyTex("X",color=RED).move_to([3.5,3,0]),
-                    MyTex("X",color=RED).move_to([3.5,2,0]),
+                    VGroup(
+                        Line([3,2,0],[3.5,2.5,0],stroke_width=10,color=RED),
+                        Line([3.5,2.5,0],[4,2,0],stroke_width=10,color=RED),
+                        Circle(radius=0.15,stroke_color=RED,stroke_width=8,fill_color="#161c20",fill_opacity=1).move_to([3.5,2.5,0]),
+                        Circle(radius=0.15,fill_opacity=1,color=RED).move_to([3,2,0]),
+                        Circle(radius=0.15,fill_opacity=1,color=RED).move_to([4,2,0]),
+                        MyTex("X",color=RED).move_to([3.5,3,0]),
+                        MyTex("X",color=RED).move_to([3,2.5,0]),
+                        MyTex("X",color=RED).move_to([4,2.5,0]),
+                        Line([3,2,0],[3.5,1.5,0],stroke_width=10,color=RED),
+                        Line([4,2,0],[3.5,1.5,0],stroke_width=10,color=RED),
+                    ),
+                    VGroup(
+                        Circle(radius=0.15,stroke_color=RED,stroke_width=8,fill_color="#161c20",fill_opacity=1).move_to([3.5,1.5,0]),
+                        MyTex("X",color=RED).move_to([3.5,2,0]),
+                    ),
                 ).shift(2*LEFT)
 
                 gauge=VGroup(
@@ -2991,7 +3388,7 @@ class Extensions(SlideScene):
                     MyTex("Z",color=BLUE).move_to([3.5,2,0]),
                 ).shift(0.5*RIGHT+0.5*UP)
 
-                VGroup(rep_lines,rep_qubits,anc_lines,anc_qubits,check,check2,gauge).move_to(ORIGIN)
+                VGroup(rep_lines,rep_qubits,anc_lines,anc_qubits,check,check2,gauge,checktower).move_to(ORIGIN)
 
                 self.play(Write(rep_lines[2]))
                 self.play(Write(rep_qubits[2]))
@@ -3015,22 +3412,34 @@ class Extensions(SlideScene):
                 self.slide_break()
 
                 self.play(Write(anc_qubits))
-                self.add_foreground_mobjects(anc_qubits)
                 self.slide_break()
 
+                self.add_foreground_mobjects(anc_qubits)
                 self.play(FadeOut(rep_lines),FadeIn(anc_lines),FadeOut(check))
                 self.remove_foreground_mobjects(anc_qubits)
                 self.slide_break()
-                self.play(Write(check2))
+
+                self.play(Write(checktower))
+                self.slide_break()
+
+                self.add_foreground_mobjects(check2[1])
+                self.play(
+                    FadeOut(checktower[1]),
+                    ReplacementTransform(checktower[0],check2[0]),
+                    FadeIn(check2[1])
+                )
+                self.remove_foreground_mobjects(check2[1])
                 self.slide_break()
 
                 self.play(Write(gauge))
                 self.slide_break()
 
                 self.play(
-                    FadeOut(anc_lines),
                     FadeOut(check2),
                     FadeOut(gauge),
+                )
+                self.play(
+                    FadeOut(anc_lines),
                     FadeOut(rep_qubits),
                     FadeOut(anc_qubits),
                 )
@@ -3220,7 +3629,13 @@ class Extensions(SlideScene):
                 self.slide_break()
 
                 ham = MyTex(
-                    r"H_E(\vec s):=-",r"\sum_{i}",r"\sum_{\sigma\in\mathcal P_{i\vphantom{R}}}",r"J_i",r"(\sigma)\comm{\sigma}{E}\prod_{ k:\comm{\sigma}{S_k}=-1 } s_k",
+                    r"H_E(\vec s):=-",
+                    r"\sum_{i}",
+                    r"\sum_{\sigma\in\mathcal P",
+                    r"_{i\vphantom{R}}",
+                    r"}J",
+                    r"_i",
+                    r"(\sigma)\comm{\sigma}{E}\prod_{ k:\comm{\sigma}{S_k}=-1 } s_k",
                     tex_environment="align*"
                 )
 
@@ -3228,52 +3643,84 @@ class Extensions(SlideScene):
                 self.slide_break()
 
                 self.play(
-                    ham[1:4].animate.set_color(YELLOW),
+                    ham[1:6].animate.set_color(YELLOW),
                 )
                 self.slide_break()
 
                 oldham=ham
                 ham = MyTex(
-                    r"H_E(\vec s):=-",r"\sum_{j}",r"\sum_{\sigma\in\mathcal P_{R_j}}",r"J_j",r"(\sigma)\comm{\sigma}{E}\prod_{ k:\comm{\sigma}{S_k}=-1 } s_k",
+                    r"H_E(\vec s):=-",
+                    r"\sum_{j}",
+                    r"\sum_{\sigma\in\mathcal P",
+                    r"_{R_j}",
+                    r"}J",
+                    r"_j",
+                    r"(\sigma)\comm{\sigma}{E}\prod_{ k:\comm{\sigma}{S_k}=-1 } s_k",
                     tex_environment="align*"
                 ).move_to(oldham)
-                ham[1:4].set_color(YELLOW),
-                self.play(
-                    ReplacementTransform(oldham[0],ham[0]),
-                    ReplacementTransform(oldham[1],ham[1]),
-                    ReplacementTransform(oldham[2],ham[2]),
-                    ReplacementTransform(oldham[3],ham[3]),
-                    ReplacementTransform(oldham[4],ham[4]),
-                )
+                ham[1:6].set_color(YELLOW),
+                # self.play(
+                #     ReplacementTransform(oldham[0],ham[0]),
+                #     ReplacementTransform(oldham[1],ham[1]),
+                #     ReplacementTransform(oldham[2],ham[2]),
+                #     ReplacementTransform(oldham[3],ham[3]),
+                #     ReplacementTransform(oldham[4],ham[4]),
+                #     ReplacementTransform(oldham[5],ham[5]),
+                #     ReplacementTransform(oldham[6],ham[6]),
+                # )
+                self.play(ReplacementTransform(oldham,ham))
                 self.slide_break()
 
                 nish=MyTex(
-                    r"\beta ",
-                    r"J_j",
+                    r"\beta J",
+                    r"_j",
                     r"(\sigma)",
-                    r"=",
-                    r"\frac{1}{\left|\mathcal P_{R_j}\right|}",
-                    r"\sum_{\tau\in\mathcal P_{R_j}}",
-                    r"\log \phi_j",
-                    r"(\tau)",
-                    r"\comm{\sigma}{\tau^{-1}}",tex_environment="align*")
+                    r"=\frac{1}{\bigl|\mathcal P",
+                    r"_{R_j}",
+                    r"\bigr|}",
+                    r"\sum_{\tau\in\mathcal P",
+                    r"_{R_j}",
+                    r"} \log ",
+                    r"\phi_j",
+                    r"(\tau)\comm{\sigma}{\tau^{-1}}",tex_environment="align*")
                 nish.move_to(1*DOWN)
 
                 self.play(ham.animate.shift(1*UP).set_color(WHITE))
                 self.play(Write(nish))
                 self.slide_break()
 
-                newnish=MyTex(
-                    r"\beta ",
+                newham = MyTex(
+                    r"H_E(\vec s):=-",
+                    r" ",
+                    r"\sum_{\sigma\in\mathcal P}",
+                    r" ",
                     r"J",
+                    r" ",
+                    r"(\sigma)\comm{\sigma}{E}\prod_{ k:\comm{\sigma}{S_k}=-1 } s_k",
+                    tex_environment="align*"
+                ).move_to(ham)
+                newnish=MyTex(
+                    r"\beta J",
+                    r"_{}",
                     r"(\sigma)",
-                    r"=",
-                    r"\frac{1}{\left|\mathcal P\right|}",
-                    r"\sum_{\tau\in\mathcal P}",
-                    r"\log \Pr",
-                    r"(\tau)",
-                    r"\comm{\sigma}{\tau^{-1}}",tex_environment="align*").move_to(nish)
-                self.play(Transform(nish,newnish))
+                    r"=\frac{1}{\bigl|\mathcal P",
+                    r"_{}",
+                    r"\bigr|}",
+                    r"\sum_{\tau\in\mathcal P",
+                    r"_{}",
+                    r"} \log ",
+                    r"\Pr",
+                    r"(\tau)\comm{\sigma}{\tau^{-1}}",
+                    tex_environment="align*"
+                ).move_to(nish)
+
+                oldnish=nish.copy()
+                oldham=ham.copy()
+
+                self.play(Transform(nish,newnish),Transform(ham,newham))
+                self.slide_break()
+
+                self.play(Transform(nish,oldnish),Transform(ham,oldham))
                 self.slide_break()
 
                 self.play(FadeOut(nish),FadeOut(ham))
@@ -3392,33 +3839,62 @@ class Extensions(SlideScene):
 
             self.play(FadeIn(toc[0:tocindex]),FadeIn(toc[tocindex+1:]), ReplacementTransform(heading,toc[tocindex]))
 
-# class Conclusion(SlideScene):
-#     def construct(self):
-#         tocindex=-1
-#         heading = toc[tocindex].copy()
-#         self.add(toc[0:tocindex],heading,toc[tocindex+1:],footer)
-#         self.play(FadeOut(toc[0:tocindex]),FadeOut(toc[tocindex+1:]), heading.animate.move_to(ORIGIN).scale(1.5).to_corner(UP))
-#         self.slide_break()
-#
-#         temp = MyTexTemplate()
-#         temp.add_to_preamble(r"\usepackage{marvosym} \usepackage{fontawesome}")
-#
-#         summary=MyTex("Summary of ","what ","is ","going on").scale(.75).move_to([0,2,0])
-#         summary[1].set_color(YELLOW)
-#         summary[3].set_color(RED)
-#
-#         arxiv=MyTex(r"\texttt{\bfseries arXiv:~????.?????}").next_to(summary,DOWN,buff=1).scale(.8)
-#         package=MyTex(r"\texttt{\bfseries github:~chubbc/manim\_slides}").next_to(arxiv,DOWN,buff=.25).scale(.8)
-#
-#         email=MyTex(r"\faEnvelope~~\texttt{me@christopherchubb.com}", tex_template=temp)
-#         website=MyTex(r"\faLink~~\texttt{christopherchubb.com}", tex_template=temp)
-#         twitter=MyTex(r"\faTwitter~~\texttt{@QuantumChubb}", tex_template=temp)
-#         github=MyTex(r"\faGithub~~\texttt{chubbc}", tex_template=temp)
-#         socials=VGroup(github,twitter,website,email).arrange(DOWN).scale(0.75).shift(2*DOWN)
-#
-#         self.play(Write(summary))
-#         self.slide_break()
-#         self.play(Write(arxiv),Write(package))
-#         self.slide_break()
-#         self.play(Write(socials))
-#         self.slide_break()
+class Conclusion(SlideScene):
+    def construct(self):
+        tocindex = 7
+        heading = toc[tocindex].copy()
+        self.add(toc[0:tocindex],heading,toc[tocindex+1:],footer)
+        self.play(FadeOut(toc[0:tocindex]),FadeOut(toc[tocindex+1:]), heading.animate.move_to(ORIGIN).scale(1.5).to_corner(UP))
+        self.slide_break()
+
+        future=VGroup(
+            VGroup(
+                MyTex("Stat mech mapping:"),
+                MyTex(r"\textbullet Non-geometric codes (LDPC, finite rate)"),
+                MyTex(r"\textbullet Sub-threshold behaviour"),
+                MyTex(r"\textbullet Analytic results"),
+                MyTex(r"\textbullet Hashing bound conjecture"),
+                MyTex(r"\textbullet Other decoders"),
+                # MyTex(r"\textbullet ????")
+            ),
+            VGroup(
+                MyTex("Tensor network decoding:"),
+                MyTex(r"\textbullet Non-Pauli noise and/or non-stabiliser codes"),
+                MyTex(r"\textbullet 3D, 2+1D, etc."),
+                MyTex(r"\textbullet LDPCs"),
+                MyTex(r"\textbullet Correlations"),
+                MyTex(r"\textbullet Hybrid decoders"),
+                MyTex(r"\textbullet Noise-rate dependent run-times"),
+            ),
+        )
+        for f in future:
+            f[1:].scale(0.75)
+            f.arrange(DOWN,aligned_edge=LEFT)
+            f[1:].shift(0.5*RIGHT)
+        future[0].set_color(YELLOW)
+        future[1].set_color(BLUE)
+
+        future.scale(0.75).arrange(RIGHT,aligned_edge=UP,buff=1).shift(0.5*UP)
+
+        self.play(Write(future[0]))
+        self.slide_break()
+
+        self.play(Write(future[1]))
+        self.slide_break()
+
+        thanks=MyTex("Thanks!").scale(1.5).shift(2*DOWN).set_color(RED)
+
+        footer_big=VGroup(
+            MyTex(r"\faGithubSquare~$\texttt{chubbc/YITP2022}$"),
+            MyTex(r"\faExternalLinkSquare~$\texttt{christopherchubb.com/YITP2022}$"),
+            MyTex(r"\faTwitterSquare~\faYoutubePlay~$\texttt{@QuantumChubb}$"),
+        ).arrange(RIGHT,buff=.5).to_corner(DOWN).shift(0.25*UP).scale(3/4)
+        concfooter=footer.copy()
+        self.remove(*footer)
+        self.add(concfooter)
+
+        self.play(Write(thanks))
+        self.play(Transform(concfooter,footer_big))
+        self.slide_break()
+
+        #9,1,7,6,3,5,8,4,2
