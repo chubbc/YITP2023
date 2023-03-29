@@ -41,17 +41,22 @@
 			// More info about initialization & config:
 			// - https://revealjs.com/initialization/
 			// - https://revealjs.com/config/
+			
+			const isMobile = /(iphone|ipod|ipad|android)/gi.test( navigator.userAgent ) ||
+				( navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1 ); // iPadOS
+			
 			Reveal.initialize({
 				hash: false,
 				transition: 'none',
 				backgroundTransition: 'none',	
 				progress: false,	
 				autoPlayMedia: false,	
-				controls: false,
+				controls: isMobile,
+				controlsLayout: 'edges',
 				// Learn about plugins: https://revealjs.com/plugins/
 				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
 			});
-			window.addEventListener("mousedown", handleClick, false);
+			//window.addEventListener("mousedown", handleClick, false);
 			window.addEventListener("contextmenu", function(e) { e.preventDefault(); }, false);
 
 			function handleClick(e) {
