@@ -42,8 +42,8 @@ toc=Group(
 # ).arrange(DOWN).scale(1/2).to_corner(DOWN).set_opacity(.5).shift(0.375*DOWN)
 
 footer=VGroup(
-    MyTex(r"\faGithubSquare~$\texttt{chubbc/YITP2022}$"),
-    MyTex(r"\faExternalLinkSquare~$\texttt{christopherchubb.com/YITP2022}$"),
+    MyTex(r"\faGithubSquare~$\texttt{chubbc/YITP2023}$"),
+    MyTex(r"\faExternalLinkSquare~$\texttt{christopherchubb.com/YITP2023}$"),
     MyTex(r"\faTwitterSquare~\faYoutubePlay~$\texttt{@QuantumChubb}$"),
 ).arrange(RIGHT,buff=3).to_corner(DOWN).shift(0.5*DOWN).scale(1/2).set_opacity(.5)
 
@@ -132,8 +132,8 @@ class Title(SlideScene):
         name = MyTex("Christopher T.\ Chubb")
         ethz=SVGMobject("ethz_logo_white.svg").scale(1/3).move_to(1.5*DOWN)
         footer_big=VGroup(
-            MyTex(r"\faGithubSquare~$\texttt{chubbc/YITP2022}$"),
-            MyTex(r"\faExternalLinkSquare~$\texttt{christopherchubb.com/YITP2022}$"),
+            MyTex(r"\faGithubSquare~$\texttt{chubbc/YITP2023}$"),
+            MyTex(r"\faExternalLinkSquare~$\texttt{christopherchubb.com/YITP2023}$"),
             MyTex(r"\faTwitterSquare~\faYoutubePlay~$\texttt{@QuantumChubb}$"),
         ).arrange(RIGHT,buff=.5).to_corner(DOWN).shift(0.25*UP).scale(3/4)
 
@@ -3885,8 +3885,8 @@ class Conclusion(SlideScene):
         thanks=MyTex("Thanks!").scale(1.5).shift(2*DOWN).set_color(RED)
 
         footer_big=VGroup(
-            MyTex(r"\faGithubSquare~$\texttt{chubbc/YITP2022}$"),
-            MyTex(r"\faExternalLinkSquare~$\texttt{christopherchubb.com/YITP2022}$"),
+            MyTex(r"\faGithubSquare~$\texttt{chubbc/YITP2023}$"),
+            MyTex(r"\faExternalLinkSquare~$\texttt{christopherchubb.com/YITP2023}$"),
             MyTex(r"\faTwitterSquare~\faYoutubePlay~$\texttt{@QuantumChubb}$"),
         ).arrange(RIGHT,buff=.5).to_corner(DOWN).shift(0.25*UP).scale(3/4)
         concfooter=footer.copy()
